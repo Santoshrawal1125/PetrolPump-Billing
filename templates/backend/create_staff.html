@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <!-- Breadcrumb -->
+                    <nav aria-label="breadcrumb" class="mb-4">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="#" class="text-decoration-none text-primary">Staff</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Add Staff Member</li>
+                        </ol>
+                    </nav>
+                    
+                    <div class="bg-white p-4 p-md-5 rounded">
+                        <h4 class="mb-4">Add Staff Member</h4>
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                {{ form.fullname.label_tag }}
+                                {{ form.fullname }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.email.label_tag }}
+                                {{ form.email }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.phone_no.label_tag }}
+                                {{ form.phone_no }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.address.label_tag }}
+                                {{ form.address }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.password.label_tag }}
+                                {{ form.password }}
+                            </div>
+                            <div class="mb-3">
+                                {{ form.confirm_password.label_tag }}
+                                {{ form.confirm_password }}
+                            </div>
+                            <button type="submit" class="btn btn-primary">Create Staff</button>
+                            <a href="#" class="btn btn-secondary">Cancel</a>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

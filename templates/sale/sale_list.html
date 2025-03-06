@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <!-- Breadcrumb -->
+                    <nav aria-label="breadcrumb" class="mb-4">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="#" class="text-decoration-none">Sales</a></li>
+                            <li class="breadcrumb-item active">Sale List</li>
+                        </ol>
+                    </nav>
+
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between mb-3">
+                        <h4>Sale List</h4>
+                    </div>
+
+                    <!-- Date Filter -->
+                    <form method="GET" action="{% url 'frontend:sale_list' %}" class="mb-4">
+                        <div class="row">
+                            <div class="col-md-4">
+                              
+                                <input type="date" class="form-control" id="date-filter" name="date" value="{{ request.GET.date }}">
+                            </div>
+                            <div class="col-md-2 align-self-end">
+                                <button type="submit" class="btn btn-primary">Search</button>
+                                <a href="{% url 'frontend:sale_list' %}" class="btn btn-secondary">Clear</a>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Responsive Table -->
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th><strong>Sale ID</strong></th>
+                                    <th><strong>Customer Name</strong></th>
+                                    <th><strong>Customer Phone</strong></th>
+                                    <th><strong>Total Amount</strong></th>
+                                    <th><strong>Date</strong></th>
+                                    <th><strong>Actions</strong></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for sale in sales %}
+                                <tr>
+                                    <td>{{ sale.id }}</td>
+                                    <td>{{ sale.customer_name }}</td>
+                                    <td>{{ sale.customer_phone }}</td>
+                                    <td>₹{{ sale.total_amount }}</td>
+                                    <td>{{ sale.created_at }}</td>
+                                    <td>
+                                        <a href="{% url 'frontend:sale_detail' sale.id %}">
+                                            <i class="fas fa-eye"></i> View Details
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">No sales found.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if is_paginated %}
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1">&laquo; First</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                            </li>
+                            {% endif %}
+
+                            <li class="page-item disabled">
+                                <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                            </li>
+
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

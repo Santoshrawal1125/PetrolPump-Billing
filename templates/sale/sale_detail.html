@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <!-- Breadcrumb -->
+                    <nav aria-label="breadcrumb" class="mb-3">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{% url 'frontend:sale_list' %}" class="text-decoration-none">Sales</a></li>
+                            <li class="breadcrumb-item active">Sale Details</li>
+                        </ol>
+                    </nav>
+
+                    <!-- Sale Information -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h4 class="mb-3">Customer Details</h4>
+                            <p><strong>Name:</strong> {{ sale.customer_name }}</p>
+                            <p><strong>Phone:</strong> {{ sale.customer_phone }}</p>
+                            <p><strong>Address:</strong> {{ sale.customer_address }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="mb-3">Sale Information</h4>
+                            <p><strong>Total Amount:</strong> <span class="badge bg-success">₹{{ sale.total_amount }}</span></p>
+                            <p><strong>Date:</strong> {{ sale.created_at }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Items Purchased -->
+                    <h4 class="mb-3">Items Purchased</h4>
+                    <div class="table-responsive">
+                        <table class="table table">
+                            <thead class="table">
+                                <tr>
+                                    <th>Item Name</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Discount</th>
+                                    <th>Tax</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if sale_items %}
+                                    {% for sale_item in sale_items %}
+                                        <tr>
+                                            <td>{{ sale_item.item_name }}</td>
+                                            <td>₹{{ sale_item.price }}</td>
+                                            <td>{{ sale_item.quantity }}</td>
+                                            <td>₹{{ sale_item.discount }}</td>
+                                            <td>₹{{ sale_item.tax }}</td>
+                                            <td><strong>₹{{ sale_item.subtotal }}</strong></td>
+                                        </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center text-muted">No items found.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Back Button -->
+                    <div class="text-end mt-4">
+                        <a href="{% url 'frontend:sale_list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Sale List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row ">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <!-- Breadcrumb -->
+                    <nav aria-label="breadcrumb" class="mb-4">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="#" class="text-decoration-none text-primary">Purchases</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Add Purchase</li>
+                        </ol>
+                    </nav>
+
+                    <!-- Form Container -->
+                    <div class="bg-white p-4 p-md-5 rounded">
+                        <h4 class="mb-4">Add New Purchase</h4>
+                        <form method="post" action="{% url 'frontend:add_purchase' %}">
+                            {% csrf_token %}
+                            
+                            <!-- Form Fields with Consistent Styling -->
+                            <div class="mb-4">
+                                <label class="form-label small text-muted">Supplier *</label>
+                                <select name="supplier" class="form-select form-control-lg bg-light" required>
+                                    <option value="">Select Supplier</option>
+                                    {% for supplier in suppliers %}
+                                        <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label small text-muted">Purchase Date *</label>
+                                    <input type="date" name="purchase_date" class="form-control form-control-lg bg-light" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small text-muted">Reference No *</label>
+                                    <input type="text" name="reference_no" class="form-control form-control-lg bg-light" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label small text-muted">Status *</label>
+                                <select name="status" class="form-select form-control-lg bg-light" required>
+                                    <option value="pending">Pending</option>
+                                    <option value="ordered">Ordered</option>
+                                    <option value="received">Received</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label small text-muted">Notes</label>
+                                <textarea name="notes" class="form-control form-control-lg bg-light" rows="3"></textarea>
+                            </div>
+
+                            <!-- Purchase Items Section -->
+                            <div class="mb-4">
+                                <h5 class="mb-3">Purchase Items</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead class="bg-light">
+                                            <tr>
+                                                <th>Item</th>
+                                                <th>Category</th>
+                                                <th>Quantity</th>
+                                                <th>Price per Unit</th>
+                                                <th>Tax (%)</th>
+                                                <th>Total Price</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="purchase-items">
+                                            <tr>
+                                                <td>
+                                                    <select name="item[]" class="form-select bg-light" required>
+                                                        <option value="">Select Item</option>
+                                                        {% for item in items %}
+                                                            <option value="{{ item.id }}">{{ item.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select name="category[]" class="form-select bg-light" required>
+                                                        <option value="">Select Category</option>
+                                                        {% for category in categories %}
+                                                            <option value="{{ category.id }}">{{ category.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </td>
+                                                <td><input type="number" name="quantity[]" class="form-control bg-light" required></td>
+                                                <td><input type="number" name="price_per_unit[]" class="form-control bg-light" required></td>
+                                                <td><input type="number" name="tax_percentage[]" class="form-control bg-light"></td>
+                                                <td><input type="text" name="total_price[]" class="form-control bg-light" readonly></td>
+                                                <td><button type="button" class="btn btn-sm btn-outline-danger remove-item">Remove</button></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <button type="button" class="btn btn-outline-primary" id="add-item">
+                                    <i class="fas fa-plus"></i> Add Item
+                                </button>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg px-5">Save Purchase</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('add-item').addEventListener('click', function() {
+        let table = document.getElementById('purchase-items');
+        let row = table.rows[0].cloneNode(true);
+        row.querySelectorAll('input, select').forEach(input => input.value = '');
+        table.appendChild(row);
+    });
+
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-item')) {
+            if (document.querySelectorAll('#purchase-items tr').length > 1) {
+                e.target.closest('tr').remove();
+            }
+        }
+    });
+</script>
+{% endblock %}

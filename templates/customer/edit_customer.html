@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <!-- Breadcrumb -->
+                    <nav aria-label="breadcrumb" class="mb-4">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="#" class="text-decoration-none">Customers List</a></li>
+                            <li class="breadcrumb-item active">Edit Customer</li>
+                        </ol>
+                    </nav>
+
+                    <!-- Form Container -->
+                    <div class="bg-white p-4 p-md-5 rounded">
+                        <h4 class="mb-4">Edit Customer</h4>
+                        <form method="POST" action="{% url 'frontend:edit_customer' customer.id %}">
+                            {% csrf_token %}
+                            
+                            <div class="row g-4">
+                                <div class="col-12 col-md-4">
+                                    <div class="form-group">
+                                        <label for="id_name" class="form-label">Name *</label>
+                                        {{ form.name }}
+                                    </div>
+                                </div>
+                        
+                                <div class="col-12 col-md-4">
+                                    <div class="form-group">
+                                        <label for="id_phone_number" class="form-label">Phone Number *</label>
+                                        {{ form.phone_number }}
+                                    </div>
+                                </div>
+                        
+                                <div class="col-12 col-md-4">
+                                    <div class="form-group">
+                                        <label for="id_email" class="form-label">Email *</label>
+                                        {{ form.email }}
+                                    </div>
+                                </div>
+                        
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="id_shipping_address" class="form-label">Shipping Address *</label>
+                                        {{ form.shipping_address }}
+                                    </div>
+                                </div>
+                        
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary">UPDATE CUSTOMER</button>
+                                    <a href="{% url 'frontend:customers_list' %}" class="btn btn-secondary">Cancel</a>
+                                </div>
+                            </div>
+                        </form>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

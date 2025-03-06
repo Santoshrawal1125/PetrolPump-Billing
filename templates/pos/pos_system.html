@@ -1,0 +1,768 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid mt-3">
+    <div class="row">
+        <!-- Invoice Section -->
+        <div class="col-lg-7 invoice-section">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Sales Invoice</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Customer Section -->
+                    <div class="customer-section mb-3">
+                        <div class="d-flex align-items-center">
+                            <input type="text" class="form-control" id="customer-input" placeholder="Search customer..." autocomplete="off">
+                            <button class="btn btn-outline-primary ms-2" id="add-customer-btn" data-bs-toggle="modal" data-bs-target="#customerModal">
+                                <i class="fas fa-user-plus"></i>
+                            </button>
+                        </div>
+                        <div id="customer-list" class="list-group position-absolute w-50 mt-2"></div>
+                    </div>
+                    
+                    <!-- Add Customer Modal -->
+                    <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="customerModalLabel">Add New Customer</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="customerForm">
+                                        {% csrf_token %}
+                                        <div class="mb-3">
+                                            <label for="name" class="form-label">Full Name</label>
+                                            <input type="text" class="form-control" id="name" name="name" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="phone" class="form-label">Phone Number</label>
+                                            <input type="text" class="form-control" id="phone" name="phone_number">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="email" class="form-label">Email</label>
+                                            <input type="email" class="form-control" id="email" name="email" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="shipping_address" class="form-label">Address</label>
+                                            <textarea class="form-control" id="shipping_address" name="shipping_address"></textarea>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Save Customer</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+
+                    <!-- Search Bar -->
+                    <!-- <div class="search-bar mb-3">
+                        <input type="text" class="form-control" id="item-search" 
+                               placeholder="Item name/Barcode/Itemcode [Ctrl+Shift+S]"
+                               autocomplete="off">
+                    </div> -->
+
+                    <!-- Invoice Table -->
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <!-- <th><strong>ID</strong></th> -->
+                                    <th><strong>Item Name</strong></th>
+                                    <th><strong>Stock</strong></th>
+                                    <th><strong>Quantity</strong></th>
+                                    <th><strong>Price</strong></th>
+                                    <th><strong>Discount</strong></th>
+                                    <th><strong>Tax</strong></th>
+                                    <th><strong>Subtotal</strong></th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody id="invoice-items"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Total Section -->
+                    <div class="total-section bg-light p-3 rounded">
+                        <div class="row">
+                            <div class="col-md-4 text-center">
+                                <p class="mb-1">Quantity:</p>
+                                <h4 id="total-quantity">0</h4>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <p class="mb-1">Total Amount:</p>
+                                <h4 id="total-amount">₹0.00</h4>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <p class="mb-1">Grand Total:</p>
+                                <h4 id="grand-total">₹0.00</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex justify-content-between mt-3">
+                        <button class="btn btn-danger" id="hold-btn">
+                            <i class="fas fa-pause"></i> Hold
+                        </button>
+                        <button class="btn btn-info" id="multiple-btn">
+                            <i class="fas fa-credit-card"></i> Multiple
+                        </button>
+                        <button class="btn btn-success" id="cash-btn">
+                            <i class="fas fa-money-bill"></i> Cash
+                        </button>
+                        <button class="btn btn-primary" id="pay-all-btn">
+                            <i class="fas fa-check-circle"></i> Pay All
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products Section -->
+        <div class="col-lg-5 products-section" style="background-color: aliceblue;">
+            <!-- Filters -->
+            <div class="row mb-3">
+                <div class="col-6" style="position: relative;">
+                    <!-- Custom dropdown trigger -->
+                    <div id="category-display" style="width: 100%; padding: 10px 15px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; cursor: pointer; background-color: white; text-align: left; position: relative; margin-top: 10px;">
+                        All Categories
+                        <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%);">▼</span>
+                    </div>
+                    
+                   
+                    <!-- Hidden original select for form submission -->
+                    <select class="form-select" id="category-filter" style="display: none;">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <!-- Custom dropdown menu -->
+                    <div id="custom-dropdown" style="position: absolute; width: 100%; max-height: 300px; overflow-y: auto; background: white; border: 1px solid #ccc; border-top: none; z-index: 10; display: none;">
+                        <!-- Search box -->
+                        <input type="text" id="category-search" style="width: calc(100% - 30px); margin: 10px 15px; padding: 5px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Search...">
+                        
+                        <!-- Dropdown items -->
+                        <div class="dropdown-item" data-value="" style="padding: 10px 15px; cursor: pointer; font-size: 14px; background-color: #eee;">All Categories</div>
+                        {% for category in categories %}
+                        <div class="dropdown-item" data-value="{{ category.id }}" style="padding: 10px 15px; cursor: pointer; font-size: 14px;">{{ category.name }}</div>
+                        {% endfor %}
+                        
+                        <!-- Scroll indicator -->
+                        <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 4px; background-color: #d00;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Grid -->
+            <div class="row" id="product-grid">
+                {% for item in items %}
+                <div class="col-md-4 col-sm-6 mb-3 product-card" 
+                     data-category="{{ item.category.id }}" 
+                     data-brand="{{ item.brand }}">
+                    <div class="card h-100">
+                        <span class="badge bg-danger quantity-badge">Qty: {{ item.quantity }}</span>
+                        {% if item.image %}
+                        <img src="{{ item.image.url }}" class="card-img-top product-image" alt="{{ item.name }}">
+                        {% else %}
+                        <img src="{% static 'images/no-image.png' %}" class="card-img-top product-image" alt="No Image">
+                        {% endif %}
+                        <div class="card-body text-center">
+                            <h6 class="card-title">{{ item.name }}</h6>
+                            <p class="text-success mb-2">₹{{ item.price }}</p>
+                            <button class="btn btn-primary btn-sm w-100 add-to-invoice" 
+                                    data-id="{{ item.id }}"
+                                    data-name="{{ item.name }}"
+                                    data-price="{{ item.price }}"
+                                    data-stock="{{ item.quantity }}">
+                                Add
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Hold Invoice Modal -->
+<div class="modal fade" id="holdInvoiceModal" tabindex="-1" aria-labelledby="holdInvoiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="holdInvoiceModalLabel">Hold Invoice</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Same Reference will replace the old list if exist!</p>
+                <input type="text" class="form-control" id="reference-number" placeholder="Enter Reference Number">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="hold-invoice-btn">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Multiple Payments Modal -->
+<div class="modal fade" id="multiplePaymentsModal" tabindex="-1" aria-labelledby="multiplePaymentsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="multiplePaymentsModalLabel">Multiple Payments</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="payment-amount" class="form-label">Amount</label>
+                    <input type="number" class="form-control" id="payment-amount" placeholder="Enter Amount">
+                </div>
+                <div class="mb-3">
+                    <label for="payment-type" class="form-label">Payment Type</label>
+                    <select class="form-select" id="payment-type">
+                        <option value="cash">Cash</option>
+                        <option value="card">Card</option>
+                        <option value="upi">UPI</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="payment-note" class="form-label">Payment Note</label>
+                    <input type="text" class="form-control" id="payment-note" placeholder="Enter Payment Note">
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p>Total Items: <span id="modal-total-items">0</span></p>
+                        <p>Total: ₹<span id="modal-total">0.00</span></p>
+                        <p>Discount(-): ₹<span id="modal-discount">0.00</span></p>
+                        <p>Total Payable: ₹<span id="modal-total-payable">0.00</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p>Total Paying: ₹<span id="modal-total-paying">0.00</span></p>
+                        <p>Balance: ₹<span id="modal-balance">0.00</span></p>
+                        <p>Change Return: ₹<span id="modal-change-return">0.00</span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="save-payment-btn">Save</button>
+                <button type="button" class="btn btn-success" id="save-print-payment-btn">Save & Print</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pay All Modal -->
+<div class="modal fade" id="payAllModal" tabindex="-1" aria-labelledby="payAllModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="payAllModalLabel">Invoice Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <h4>{{ organization.company_name }}</h4>
+                    <p>Address: {{ organization.location }}</p>
+                    <p>PAN Number / VAT: {{ organization.pan_vat }}</p>
+                    <p>Phone: {{ organization.phone }}, {{ organization.telephone }}</p>
+                    <hr>
+                    <h5>-----------------Invoice-----------------</h5>
+                    <p>Invoice #{{ invoice.invoice_number }}</p>
+                
+                    <!-- Customer Details Input Fields -->
+                    <div class="customer-details mb-3 p-2 border rounded">
+                        <div class="d-flex align-items-center gap-3">
+                            <label for="customer-name" class="small fw-bold">Name:</label>
+                            <input type="text" class="form-control form-control-sm w-auto" id="customer-name" placeholder="_______">
+
+                            <label for="customer-address" class="small fw-bold">Address:</label>
+                            <input type="text" class="form-control form-control-sm w-auto" id="customer-address" placeholder="_______">
+
+                            <label for="customer-phone" class="small fw-bold">Phone:</label>
+                            <input type="text" class="form-control form-control-sm w-auto" id="customer-phone" placeholder="_______">
+                        </div>
+                    </div>
+
+                </div>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>S.N</th>
+                            <th>Item</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoice-details-body"></tbody>
+                </table>
+                <div class="row">
+                    <div class="col-md-6 me-auto text-start"> 
+                        <p>Tax Amount: ₹<span id="invoice-tax-amount">0.00</span></p>
+                        <p>Discount: ₹<span id="invoice-total-discount">0.00</span></p>
+                        <p><strong>Grand Total: ₹<span id="invoice-total">0.00</span></strong></p>
+                    </div>
+                </div>
+                
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="save-invoice-btn" onclick="saveInvoice()">Save</button>
+               <button type="button" class="btn btn-success" id="save-print-invoice-btn" onclick="printInvoice()">Save & Print</button>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+    .product-card {
+        transition: transform 0.2s;
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .product-image {
+        height: 120px;
+        object-fit: contain;
+        padding: 10px;
+    }
+    
+    .quantity-badge {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        z-index: 1;
+    }
+    
+    .table-responsive {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    
+    @media (max-width: 768px) {
+        .invoice-section {
+            order: 2;
+            margin-top: 20px;
+        }
+        
+        .products-section {
+            order: 1;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+$(document).ready(function() {
+    console.log("jQuery Loaded:", typeof jQuery !== 'undefined');
+    
+    // Add item to invoice
+    $(document).on('click', '.add-to-invoice', function() {
+        const itemId = $(this).data('id');
+        const itemName = $(this).data('name');
+        const itemPrice = $(this).data('price');
+        const itemStock = $(this).data('stock');
+    
+        console.log("Product clicked:", itemId, itemName, itemPrice, itemStock);
+    
+        const existingRow = $(`#invoice-items tr[data-id="${itemId}"]`);
+        if (existingRow.length) {
+            const qtyInput = existingRow.find('input.quantity-input');
+            const currentQty = parseInt(qtyInput.val());
+            if (currentQty < itemStock) {
+                qtyInput.val(currentQty + 1);
+                updateRowTotal(existingRow);
+            }
+        } else {
+            const newRow = `
+                <tr data-id="${itemId}">
+                    <td>${itemName}</td>
+                    <td>${itemStock}</td>
+                    <td>
+                        <input type="number" class="form-control form-control-sm quantity-input" 
+                               value="1" min="1" max="${itemStock}">
+                    </td>
+                    <td class="item-price">${itemPrice}</td>
+                    <td>
+                        <input type="number" class="form-control form-control-sm discount-input" 
+                               value="0" min="0">
+                    </td>
+                    <td>
+                        <input type="number" class="form-control form-control-sm tax-input" 
+                               value="0" min="0">
+                    </td>
+                    <td class="subtotal">${itemPrice}</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm remove-item">×</button>
+                    </td>
+                </tr>
+            `;
+            $('#invoice-items').append(newRow);
+            console.log("Product added to table:", newRow);
+        }
+        updateTotals();
+    });
+
+    // Update row total
+    function updateRowTotal(row) {
+        const qty = parseInt(row.find('input.quantity-input').val());
+        const price = parseFloat(row.find('.item-price').text());
+        const discount = parseFloat(row.find('.discount-input').val()) || 0;
+        const tax = parseFloat(row.find('.tax-input').val()) || 0;
+        const subtotal = (qty * price) - discount + (qty * price * tax / 100);
+        row.find('.subtotal').text(subtotal.toFixed(2));
+        updateTotals();
+    }
+
+    // Update totals
+    function updateTotals() {
+        let totalQuantity = 0;
+        let totalAmount = 0;
+        $('#invoice-items tr').each(function() {
+            totalQuantity += parseInt($(this).find('input.quantity-input').val()) || 0;
+            totalAmount += parseFloat($(this).find('.subtotal').text()) || 0;
+        });
+        $('#total-quantity').text(totalQuantity);
+        $('#total-amount').text(totalAmount.toFixed(2));
+        $('#grand-total').text(totalAmount.toFixed(2));
+    }
+
+    // Handle quantity change
+    $(document).on('input', '.quantity-input', function() {
+        const row = $(this).closest('tr');
+        updateRowTotal(row);
+    });
+
+    // Handle discount and tax change
+    $(document).on('input', '.discount-input, .tax-input', function() {
+        const row = $(this).closest('tr');
+        updateRowTotal(row);
+    });
+
+    // Remove item
+    $(document).on('click', '.remove-item', function() {
+        $(this).closest('tr').remove();
+        updateTotals();
+    });
+
+    // Hold Invoice
+    $('#hold-btn').click(function() {
+        $('#holdInvoiceModal').modal('show');
+    });
+
+    $('#hold-invoice-btn').click(function() {
+        const referenceNumber = $('#reference-number').val();
+        if (referenceNumber) {
+            alert(`Invoice held with reference number: ${referenceNumber}`);
+            $('#holdInvoiceModal').modal('hide');
+        } else {
+            alert("Please enter a reference number!");
+        }
+    });
+
+    // Multiple Payments
+    $('#multiple-btn').click(function() {
+        $('#modal-total-items').text($('#total-quantity').text());
+        $('#modal-total').text($('#total-amount').text());
+        $('#modal-total-payable').text($('#grand-total').text());
+        $('#multiplePaymentsModal').modal('show');
+    });
+
+    $('#save-payment-btn').click(function() {
+        alert("Payment saved!");
+        $('#multiplePaymentsModal').modal('hide');
+    });
+
+    $('#save-print-payment-btn').click(function() {
+        alert("Payment saved and printed!");
+        $('#multiplePaymentsModal').modal('hide');
+    });
+
+    // Pay All
+// Pay All
+$('#pay-all-btn').click(function() {
+    $('#invoice-details-body').empty();
+    let totalTax = 0;
+    let totalDiscount = 0;
+    let totalAmount = 0;
+
+    $('#invoice-items tr').each(function() {
+        const itemName = $(this).find('td').eq(0).text();
+        const price = parseFloat($(this).find('.item-price').text());
+        const quantity = parseInt($(this).find('.quantity-input').val());
+        const discount = parseFloat($(this).find('.discount-input').val()) || 0;
+        const tax = parseFloat($(this).find('.tax-input').val()) || 0;
+        const subtotal = (price * quantity) - discount + (price * quantity * tax / 100);
+
+        // Update totals
+        totalTax += (price * quantity * tax / 100);
+        totalDiscount += discount;
+        totalAmount += subtotal;
+
+        // Add row to the modal table
+        $('#invoice-details-body').append(`
+            <tr>
+                <td>1</td>
+                <td>${itemName}</td>
+                <td>₹${price.toFixed(2)}</td>
+                <td>${quantity}</td>
+                <td>₹${subtotal.toFixed(2)}</td>
+            </tr>
+        `);
+    });
+
+    // Update the modal with calculated totals
+    $('#invoice-tax-amount').text(totalTax.toFixed(2));
+    $('#invoice-total-discount').text(totalDiscount.toFixed(2));
+    $('#invoice-total').text(totalAmount.toFixed(2));
+
+    // Show the modal
+    $('#payAllModal').modal('show');
+});
+
+    // Save Invoice
+    $('#save-invoice-btn').click(function() {
+        // Here you can add the logic to save the invoice to the database
+        alert("Invoice saved!");
+        $('#payAllModal').modal('hide');
+    });
+
+    // Save and Print Invoice
+    $('#save-print-invoice-btn').click(function() {
+        // Here you can add the logic to save the invoice to the database
+        alert("Invoice saved and printed!");
+        $('#payAllModal').modal('hide');
+        
+        // Print the invoice
+        printInvoice();
+    });
+
+    // Function to print the invoice
+    function printInvoice() {
+        const printContents = document.getElementById('payAllModal').innerHTML;
+        const originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+        window.location.reload(); // Reload the page to restore the original content
+    }
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const categoryDisplay = document.getElementById('category-display');
+    const customDropdown = document.getElementById('custom-dropdown');
+    const categorySearch = document.getElementById('category-search');
+    const dropdownItems = document.querySelectorAll('.dropdown-item');
+    const categoryFilter = document.getElementById('category-filter');
+    const productGrid = document.getElementById('product-grid');
+    const productCards = document.querySelectorAll('.product-card');
+
+    // Toggle dropdown
+    categoryDisplay.addEventListener('click', function() {
+        const isVisible = customDropdown.style.display === 'block';
+        customDropdown.style.display = isVisible ? 'none' : 'block';
+        if (!isVisible) {
+            categorySearch.focus();
+        }
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!categoryDisplay.contains(event.target) && !customDropdown.contains(event.target)) {
+            customDropdown.style.display = 'none';
+        }
+    });
+
+    // Select category
+    dropdownItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // Update display
+            categoryDisplay.textContent = this.textContent;
+            categoryDisplay.appendChild(document.createElement('span')).textContent = '▼';
+            categoryDisplay.querySelector('span').style.position = 'absolute';
+            categoryDisplay.querySelector('span').style.right = '15px';
+            categoryDisplay.querySelector('span').style.top = '50%';
+            categoryDisplay.querySelector('span').style.transform = 'translateY(-50%)';
+
+            // Update actual select element
+            categoryFilter.value = this.dataset.value;
+
+            // Update styling
+            dropdownItems.forEach(i => i.style.backgroundColor = '');
+            this.style.backgroundColor = '#eee';
+
+            // Hide dropdown
+            customDropdown.style.display = 'none';
+
+            // Filter products based on selected category
+            filterProducts(this.dataset.value);
+        });
+    });
+
+    // Filter categories by search
+    categorySearch.addEventListener('input', function() {
+        const searchValue = this.value.toLowerCase();
+        dropdownItems.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            if (text.includes(searchValue)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+
+    // Function to filter products based on category
+    function filterProducts(categoryId) {
+        productCards.forEach(card => {
+            const cardCategory = card.getAttribute('data-category');
+            if (categoryId === "" || cardCategory === categoryId) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    // Initial filter to show all products
+    filterProducts("");
+});
+   </script>
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const customerInput = document.getElementById("customer-input");
+        const customerList = document.getElementById("customer-list");
+        const customerForm = document.getElementById("customerForm");
+    
+        // Search customer
+        customerInput.addEventListener("input", function() {
+            let query = this.value.trim();
+            if (query.length > 1) {
+                fetch(`/search-customer/?query=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    customerList.innerHTML = "";
+                    data.forEach(customer => {
+                        let item = document.createElement("button");
+                        item.classList.add("list-group-item", "list-group-item-action");
+                        item.textContent = `${customer.name} (${customer.phone})`;
+                        item.onclick = () => {
+                            customerInput.value = customer.name;
+                            customerList.innerHTML = ""; // Clear dropdown
+                        };
+                        customerList.appendChild(item);
+                    });
+                });
+            } else {
+                customerList.innerHTML = "";
+            }
+        });
+    
+        // Submit new customer form
+        customerForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+            let formData = new FormData(this);
+            
+            fetch("{% url 'frontend:create_customer' %}", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Customer added successfully!");
+                    customerInput.value = data.name;
+                    customerList.innerHTML = "";
+                    document.getElementById("customerModal").click(); // Close modal
+                } else {
+                    alert("Error adding customer!");
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        });
+    });
+
+    function saveInvoice() {
+    const customerName = $('#customer-name').val();
+    const customerAddress = $('#customer-address').val();
+    const customerPhone = $('#customer-phone').val();
+
+    const invoiceItems = [];
+    $('#invoice-items tr').each(function() {
+        const itemName = $(this).find('td').eq(0).text();
+        const price = parseFloat($(this).find('.item-price').text());
+        const quantity = parseInt($(this).find('.quantity-input').val());
+        const discount = parseFloat($(this).find('.discount-input').val()) || 0;
+        const tax = parseFloat($(this).find('.tax-input').val()) || 0;
+        const subtotal = (price * quantity) - discount + (price * quantity * tax / 100);
+
+        invoiceItems.push({
+            itemId: $(this).data('id'), // Pass item ID
+            itemName: itemName,
+            price: price,
+            quantity: quantity,
+            discount: discount,
+            tax: tax,
+            subtotal: subtotal
+        });
+    });
+
+    const totalAmount = parseFloat($('#grand-total').text());
+
+    const saleData = {
+        customerName: customerName,
+        customerAddress: customerAddress,
+        customerPhone: customerPhone,
+        items: invoiceItems,
+        totalAmount: totalAmount
+    };
+
+    // Send data to the backend
+    fetch("{% url 'frontend:save_sale' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify(saleData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Sale saved successfully!");
+            window.location.href = "{% url 'frontend:sale_list' %}"; // Redirect to sale list page
+        } else {
+            alert("Error saving sale!");
+        }
+    })
+    .catch(error => console.error("Error:", error));
+}
+    
+</script>
+
+   
+{% endblock %}
+{% endblock %}

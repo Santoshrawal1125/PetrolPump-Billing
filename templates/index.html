@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load static %}
+
+
+{% block content %}
+
+     <div class="container-fluid">
+                <!-- ============================================================== -->
+                <!-- Sales Cards  -->
+                <!-- ============================================================== -->
+                <div class="row">
+                    <!-- Column -->
+                    <div class="col-md-6 col-lg-2 col-xlg-3">
+                        <div class="card card-hover">
+                            <div class="box bg-cyan text-center">
+                                <h1 class="font-light text-white"><i class="mdi mdi-view-dashboard"></i></h1>
+                                <h6 class="text-white">Dashboard</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Column -->
+                    <div class="col-md-6 col-lg-4 col-xlg-3">
+                        <div class="card card-hover">
+                            <div class="box bg-success text-center">
+                                <h1 class="font-light text-white"><i class="mdi mdi-account-group-outline"></i></h1>
+                                <h6 class="text-white">Customer</h6>
+                            </div>
+                            
+                        </div>
+                                        </div>
+                    <!-- Purchase Staff -->
+                    <!-- <div class="col-md-6 col-lg-2 col-xlg-3">
+                        <div class="card card-hover">
+                            <div class="box bg-warning text-center">
+                                <h1 class="font-light text-white"><i class="mdi mdi-account-tie"></i></h1>
+                                <h6 class="text-white">Purchase Staff</h6>
+                            </div>
+                        </div>
+                    </div> -->
+
+                    <!-- Sale Staff -->
+                    <!-- <div class="col-md-6 col-lg-2 col-xlg-3">
+                        <div class="card card-hover">
+                            <div class="box bg-danger text-center">
+                                <h1 class="font-light text-white"><i class="mdi mdi-cash-register"></i></h1>
+                                <h6 class="text-white">Sale Staff</h6>
+                            </div>
+                        </div>
+                    </div> -->
+
+                    <!-- Suppliers -->
+                    <div class="col-md-6 col-lg-2 col-xlg-3">
+                        <div class="card card-hover">
+                            <div class="box bg-info text-center">
+                                <h1 class="font-light text-white"><i class="mdi mdi-folder-multiple-outline"></i></h1>
+                                <h6 class="text-white">Category</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Expenses -->
+                    <div class="col-md-6 col-lg-4 col-xlg-3">
+                        <div class="card card-hover">
+                            <div class="box bg-danger text-center">
+                                <h1 class="font-light text-white"><i class="mdi mdi-cash-multiple"></i></h1>
+                                <h6 class="text-white">Expenses</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Duplicate Suppliers Section (Fixed to Suppliers) -->
+                    <div class="col-md-6 col-lg-2 col-xlg-3">
+                        <div class="card card-hover">
+                            <div class="box bg-info text-center">
+                                <h1 class="font-light text-white"><i class="mdi mdi-credit-card-multiple"></i></h1>
+                                <h6 class="text-white">POS</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Expense Category -->
+                    <div class="col-md-6 col-lg-2 col-xlg-3">
+                        <div class="card card-hover">
+                            <div class="box bg-cyan text-center">
+                                <h1 class="font-light text-white"><i class="mdi mdi-folder"></i></h1>
+                                <h6 class="text-white">Expense Category</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Items -->
+                    <div class="col-md-6 col-lg-2 col-xlg-3">
+                        <div class="card card-hover">
+                            <div class="box bg-success text-center">
+                                <h1 class="font-light text-white"><i class="mdi mdi-package-variant"></i></h1>
+                                <h6 class="text-white">Items</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Purchases -->
+                    <div class="col-md-6 col-lg-2 col-xlg-3">
+                        <div class="card card-hover">
+                            <div class="box bg-warning text-center">
+                                <h1 class="font-light text-white"><i class="mdi mdi-cart"></i></h1>
+                                <h6 class="text-white">Sales</h6>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Column -->
+                </div>
+                <!-- ============================================================== -->
+                <!-- Sales chart -->
+                <!-- ============================================================== -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-md-flex align-items-center">
+                                    
+                                </div>
+                                <div class="row">
+                                    <!-- column -->
+                                    <div class="col-lg-9">
+                                        <div class="flot-chart">
+                                            <div class="flot-chart-content" id="flot-line-chart"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div class="bg-dark p-10 text-white text-center">
+                                                   <i class="fa fa-gift m-b-5 font-16"></i>
+                                                   <h5 class="m-b-0 m-t-5">{{ total_items }}</h5>
+                                                   <small class="font-light">Total Items</small>
+                                                </div>
+                                            </div>
+                                             <div class="col-6">
+                                                <div class="bg-dark p-10 text-white text-center">
+                                                   <i class="fa fa-users m-b-5 font-16"></i>
+                                                   <h5 class="m-b-0 m-t-5">{{ total_customers }}</h5>
+                                                   <small class="font-light">Total Customers</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 m-t-15">
+                                                <div class="bg-dark p-10 text-white text-center">
+                                                   <i class="fa fa-cart-plus m-b-5 font-16"></i>
+                                                   <h5 class="m-b-0 m-t-5">{{ total_sale }}</h5>
+                                                   <small class="font-light">Total Sale</small>
+                                                </div>
+                                            </div>
+                                             <div class="col-6 m-t-15">
+                                                <div class="bg-dark p-10 text-white text-center">
+                                                   <i class="fa fa-tag m-b-5 font-16"></i>
+                                                   <h5 class="m-b-0 m-t-5">{{ total_category }}</h5>
+                                                   <small class="font-light">Total Catgory</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 m-t-15">
+                                                <div class="bg-dark p-10 text-white text-center">
+                                                   <i class="fa fa-table m-b-5 font-16"></i>
+                                                   <h5 class="m-b-0 m-t-5">{{ total_expenses }}</h5>
+                                                   <small class="font-light">Total Expenses</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 m-t-15">
+                                                <div class="bg-dark p-10 text-white text-center">
+                                                   <i class="fa fa-globe m-b-5 font-16"></i>
+                                                   <h5 class="m-b-0 m-t-5">{{ total_expenses_category }}</h5>
+                                                   <small class="font-light">Expenses Category</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- column -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+             
+      </div>
+
+{% endblock %}      
+           
