@@ -11,15 +11,19 @@
                 <div class="row">
                     <!-- Column -->
                     <div class="col-md-6 col-lg-2 col-xlg-3">
-                        <div class="card card-hover">
-                            <div class="box bg-cyan text-center">
-                                <h1 class="font-light text-white"><i class="mdi mdi-view-dashboard"></i></h1>
-                                <h6 class="text-white">Dashboard</h6>
+                        <a href="{% url 'frontend:index' %}" style="text-decoration: none;">
+                            <div class="card card-hover">
+                                <div class="box bg-cyan text-center">
+                                    <h1 class="font-light text-white"><i class="mdi mdi-view-dashboard"></i></h1>
+                                    <h6 class="text-white">Dashboard</h6>
+                                </div>
                             </div>
-                        </div>
+                        </a>
+                        
                     </div>
                     <!-- Column -->
                     <div class="col-md-6 col-lg-4 col-xlg-3">
+                        <a href="{% url 'frontend:customers_list' %}" style="text-decoration: none;">
                         <div class="card card-hover">
                             <div class="box bg-success text-center">
                                 <h1 class="font-light text-white"><i class="mdi mdi-account-group-outline"></i></h1>
@@ -27,7 +31,8 @@
                             </div>
                             
                         </div>
-                                        </div>
+                        </a>
+                    </div>
                     <!-- Purchase Staff -->
                     <!-- <div class="col-md-6 col-lg-2 col-xlg-3">
                         <div class="card card-hover">
@@ -50,62 +55,74 @@
 
                     <!-- Suppliers -->
                     <div class="col-md-6 col-lg-2 col-xlg-3">
+                        <a href="{% url 'frontend:category_list' %}" style="text-decoration: none;">
                         <div class="card card-hover">
                             <div class="box bg-info text-center">
                                 <h1 class="font-light text-white"><i class="mdi mdi-folder-multiple-outline"></i></h1>
                                 <h6 class="text-white">Category</h6>
                             </div>
                         </div>
+                    </a>
                     </div>
 
                     <!-- Expenses -->
                     <div class="col-md-6 col-lg-4 col-xlg-3">
+                        <a href="{% url 'frontend:expense_list' %}" style="text-decoration: none;">
                         <div class="card card-hover">
                             <div class="box bg-danger text-center">
                                 <h1 class="font-light text-white"><i class="mdi mdi-cash-multiple"></i></h1>
                                 <h6 class="text-white">Expenses</h6>
                             </div>
                         </div>
+                    </a>
                     </div>
 
                     <!-- Duplicate Suppliers Section (Fixed to Suppliers) -->
                     <div class="col-md-6 col-lg-2 col-xlg-3">
+                    <a href="{% url 'frontend:pos_page' %}" style="text-decoration: none;">
                         <div class="card card-hover">
                             <div class="box bg-info text-center">
                                 <h1 class="font-light text-white"><i class="mdi mdi-credit-card-multiple"></i></h1>
                                 <h6 class="text-white">POS</h6>
                             </div>
                         </div>
+                    </a>
                     </div>
 
                     <!-- Expense Category -->
                     <div class="col-md-6 col-lg-2 col-xlg-3">
+                        <a href="{% url 'frontend:expense_category_list' %}" style="text-decoration: none;">
                         <div class="card card-hover">
                             <div class="box bg-cyan text-center">
                                 <h1 class="font-light text-white"><i class="mdi mdi-folder"></i></h1>
                                 <h6 class="text-white">Expense Category</h6>
                             </div>
                         </div>
+                    </a>
                     </div>
 
                     <!-- Items -->
                     <div class="col-md-6 col-lg-2 col-xlg-3">
+                        <a href="{% url 'frontend:item_list' %}" style="text-decoration: none;">
                         <div class="card card-hover">
                             <div class="box bg-success text-center">
                                 <h1 class="font-light text-white"><i class="mdi mdi-package-variant"></i></h1>
                                 <h6 class="text-white">Items</h6>
                             </div>
                         </div>
+                    </a>
                     </div>
 
                     <!-- Purchases -->
                     <div class="col-md-6 col-lg-2 col-xlg-3">
+                        <a href="{% url 'frontend:sale_list' %}" style="text-decoration: none;">
                         <div class="card card-hover">
                             <div class="box bg-warning text-center">
                                 <h1 class="font-light text-white"><i class="mdi mdi-cart"></i></h1>
                                 <h6 class="text-white">Sales</h6>
                             </div>
                         </div>
+                    </a>
                     </div>
 
                     <!-- Column -->
@@ -124,9 +141,12 @@
                                     <!-- column -->
                                     <div class="col-lg-9">
                                         <div class="flot-chart">
-                                            <div class="flot-chart-content" id="flot-line-chart"></div>
+                                            <canvas id="dynamicChart"></canvas>
                                         </div>
                                     </div>
+                                    
+                                    
+
                                     <div class="col-lg-3">
                                         <div class="row">
                                             <div class="col-6">
@@ -182,5 +202,61 @@
              
       </div>
 
+
+
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var ctx = document.getElementById('dynamicChart').getContext('2d');
+    
+            // Data from Django variables
+            var chartData = {
+                labels: ["Items", "Customers", "Sales", "Categories", "Expenses", "Expense Categories"],
+                datasets: [{
+                    label: 'Business Statistics',
+                    data: [
+                        {{ total_items }},
+                        {{ total_customers }},
+                        {{ total_sale }},
+                        {{ total_category }},
+                        {{ total_expenses }},
+                        {{ total_expenses_category }}
+                    ],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.6)',
+                        'rgba(54, 162, 235, 0.6)',
+                        'rgba(255, 206, 86, 0.6)',
+                        'rgba(75, 192, 192, 0.6)',
+                        'rgba(153, 102, 255, 0.6)',
+                        'rgba(255, 159, 64, 0.6)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            };
+    
+            // Chart configuration
+            var myChart = new Chart(ctx, {
+                type: 'bar', // Change to 'line' or 'pie' if needed
+                data: chartData,
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
 {% endblock %}      
            
