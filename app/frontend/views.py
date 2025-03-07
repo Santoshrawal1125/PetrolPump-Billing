@@ -9,9 +9,13 @@ from django.contrib import messages
 from django.contrib.auth.forms import PasswordChangeForm
 import csv
 import json
+import openpyxl
+from openpyxl import Workbook 
 from django.contrib.auth import get_user_model
 from django.views import View
 from django.utils.text import slugify
+from django.utils.timezone import make_naive
+
 
 #local import
 from django.shortcuts import render, redirect, get_object_or_404
@@ -166,58 +170,36 @@ def edit_customer(request, pk):
     return render(request, 'customer/edit_customer.html', {'form': form, 'customer': customer})
 
 
-def export_customers_csv(request):
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="customers.csv"'
-    
-    writer = csv.writer(response)
-    writer.writerow(['ID', 'Created By', 'Customer Name', 'Email', 'Phone Number', 'Shipping Address'])
-    
-    customers = Customer.objects.all()
-    for customer in customers:
-        writer.writerow([customer.id, customer.created_by, customer.name, customer.email, customer.phone_number, customer.shipping_address])
-    
-    return response
+
+
 
 def export_customers_excel(request):
     workbook = openpyxl.Workbook()
     sheet = workbook.active
     sheet.title = "Customers"
-    
+
     # Headers
     sheet.append(['ID', 'Created By', 'Customer Name', 'Email', 'Phone Number', 'Shipping Address'])
-    
+
     # Data
     customers = Customer.objects.all()
     for customer in customers:
-        sheet.append([customer.id, customer.created_by, customer.name, customer.email, customer.phone_number, customer.shipping_address])
-    
+        sheet.append([
+            customer.id,
+            str(customer.created_by),  # Convert User object to string
+            customer.name,
+            customer.email,
+            str(customer.phone_number),  # Convert PhoneNumber object to string
+            customer.shipping_address
+        ])
+
     # Response
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
     response['Content-Disposition'] = 'attachment; filename="customers.xlsx"'
     workbook.save(response)
-    
-    return response
 
-
-
-def export_customers_json(request):
-    customers = Customer.objects.values('id', 'created_by', 'name', 'email', 'phone_number', 'shipping_address')
-    
-    # Convert PhoneNumberField to string
-    customers_list = list(customers)
-    for customer in customers_list:
-        customer['phone_number'] = str(customer['phone_number'])  # Convert PhoneNumber to string
-
-    # Convert to JSON string
-    json_data = json.dumps(customers_list, indent=4)
-
-    # Create an HTTP response with a JSON file attachment
-    response = HttpResponse(json_data, content_type="application/json")
-    response['Content-Disposition'] = 'attachment; filename="customers.json"'
-    
     return response
 
 
@@ -669,3 +651,35 @@ class StaffCreateView(View):
             return redirect('frontend:staff_list')
 
         return render(request, self.template_name, {'form': form}) 
+
+
+def export_sales_excel(request):
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    sheet.title = "Sales"
+
+    # Headers
+    sheet.append(['Sale ID', 'Customer Name', 'Customer Phone', 'Total Amount', 'Date'])
+
+    # Fetch sales data
+    sales = Sale.objects.all()
+    for sale in sales:
+        # Convert datetime to naive (remove timezone)
+        created_at_naive = make_naive(sale.created_at)
+
+        sheet.append([
+            sale.id, 
+            sale.customer_name, 
+            sale.customer_phone, 
+            sale.total_amount, 
+            created_at_naive  # Ensure this is a naive datetime
+        ])
+
+    # Response
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename="sales.xlsx"'
+    workbook.save(response)
+
+    return response

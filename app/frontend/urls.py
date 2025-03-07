@@ -29,10 +29,10 @@ urlpatterns = [
    path('delete-customer/<int:pk>/', views.delete_customer, name='delete_customer'),
 
 
-   ### csv , excel, json
-   path('export/csv/', views.export_customers_csv, name='export_customers_csv'),
+   ###  excel for customer
+   
    path('export/excel/', views.export_customers_excel, name='export_customers_excel'),
-   path('export/json/', views.export_customers_json, name='export_customers_json'),
+   
 
    ### purchases
    path('purchases/', views.purchase_list, name='purchase_list'),
@@ -77,6 +77,10 @@ urlpatterns = [
    path('save/sale/', views.save_sale, name='save_sale'),
    path('sale/list/', views.sale_list, name='sale_list'),
    path('sale/detail/<int:sale_id>/', views.sale_detail, name='sale_detail'),
+
+
+   path('export/sales/excel/', views.export_sales_excel, name='export_sales_excel'),
+
 
     
 

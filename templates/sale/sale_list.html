@@ -15,10 +15,18 @@
                         </ol>
                     </nav>
 
-                    <!-- Header -->
-                    <div class="d-flex justify-content-between mb-3">
-                        <h4>Sale List</h4>
-                    </div>
+                                        <!-- Header and Export Buttons -->
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h4>Sale List</h4>
+                                            <div>
+                                                
+                                                <a href="{% url 'frontend:export_sales_excel' %}" class="btn btn-success">
+                                                    <i class="fas fa-file-excel"></i> EXPORT EXCEL
+                                                </a>
+                                            </div>
+                                        </div>
+                    
+                                    
 
                     <!-- Date Filter -->
                     <form method="GET" action="{% url 'frontend:sale_list' %}" class="mb-4">
