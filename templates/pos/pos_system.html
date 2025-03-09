@@ -2,6 +2,37 @@
 {% load static %}
 
 {% block content %}
+
+<style>
+    @media print {
+    .modal-footer, .btn-close {
+        display: none !important;
+    }
+    .customer-details {
+        display: block !important;
+    }
+    /* Add any additional print styles here */
+    body {
+        font-family: Arial, sans-serif;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        border: 1px solid #000;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+}
+</style>
+
+
+
+
 <div class="container-fluid mt-3">
     <div class="row">
         <!-- Invoice Section -->
@@ -759,6 +790,66 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     })
     .catch(error => console.error("Error:", error));
+}
+
+function printInvoice() {
+    // Clone the modal content to avoid modifying the original
+    const printContents = document.getElementById('payAllModal').cloneNode(true);
+
+    // Remove unnecessary elements
+    const elementsToRemove = printContents.querySelectorAll('.modal-footer, .btn-close');
+    elementsToRemove.forEach(el => el.remove());
+
+    // Ensure customer details are visible
+    const customerDetails = printContents.querySelector('.customer-details');
+    if (customerDetails) {
+        customerDetails.style.display = 'block';
+    }
+
+    // Create a new window for printing
+    const printWindow = window.open('', '_blank');
+    printWindow.document.open();
+    printWindow.document.write(`
+        <html>
+            <head>
+                <title>Invoice</title>
+                <style>
+                    /* Hide unnecessary elements when printing */
+                    .modal-footer, .btn-close {
+                        display: none !important;
+                    }
+                    /* Ensure customer details are visible */
+                    .customer-details {
+                        display: block !important;
+                    }
+                    /* Add any additional print styles here */
+                    body {
+                        font-family: Arial, sans-serif;
+                    }
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                    }
+                    th, td {
+                        border: 1px solid #000;
+                        padding: 8px;
+                        text-align: left;
+                    }
+                    th {
+                        background-color: #f2f2f2;
+                    }
+                </style>
+            </head>
+            <body>
+                ${printContents.innerHTML}
+            </body>
+        </html>
+    `);
+    printWindow.document.close();
+
+    // Print the invoice
+    printWindow.print();
+    printWindow.close();
 }
     
 </script>

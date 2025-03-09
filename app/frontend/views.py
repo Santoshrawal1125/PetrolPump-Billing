@@ -683,3 +683,28 @@ def export_sales_excel(request):
     workbook.save(response)
 
     return response
+
+
+def export_items_excel(request):
+    # Create an Excel workbook and sheet
+    workbook = openpyxl.Workbook()
+    sheet = workbook.active
+    sheet.title = "Items List"
+
+    # Define the header row
+    headers = ["ID", "Item Code", "Name", "Brand", "Category", "Quantity", "Price"]
+    sheet.append(headers)
+
+    # Fetch items from the database
+    items = Item.objects.all()
+
+    # Write item data to the Excel file
+    for item in items:
+        sheet.append([item.id, item.item_code, item.name, item.brand, item.category, item.quantity, item.price])
+
+    # Prepare the HTTP response with the Excel file
+    response = HttpResponse(content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    response["Content-Disposition"] = 'attachment; filename="items_list.xlsx"'
+    workbook.save(response)
+
+    return response

@@ -81,6 +81,8 @@ urlpatterns = [
 
    path('export/sales/excel/', views.export_sales_excel, name='export_sales_excel'),
 
+   path("export-items-excel/", views.export_items_excel, name="export_items_excel"),
+
 
     
 
