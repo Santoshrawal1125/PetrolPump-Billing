@@ -1,17 +1,18 @@
 {% extends 'base.html' %}
 {% load static %}
-
 {% block content %}
 
 <style>
-    @media print {
-    .modal-footer, .btn-close {
+@media print {
+    .modal-footer, .btn-close, .modal-header {
         display: none !important;
     }
     .customer-details {
         display: block !important;
     }
-    /* Add any additional print styles here */
+    .text-center {
+        text-align: center !important;
+    }
     body {
         font-family: Arial, sans-serif;
     }
@@ -736,7 +737,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    function saveInvoice() {
+// Save Invoice
+function saveInvoice(shouldPrint = false) {
     const customerName = $('#customer-name').val();
     const customerAddress = $('#customer-address').val();
     const customerPhone = $('#customer-phone').val();
@@ -784,6 +786,9 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(data => {
         if (data.success) {
             alert("Sale saved successfully!");
+            if (shouldPrint) {
+                printInvoice(); // Print after saving
+            }
             window.location.href = "{% url 'frontend:sale_list' %}"; // Redirect to sale list page
         } else {
             alert("Error saving sale!");
@@ -792,12 +797,22 @@ document.addEventListener('DOMContentLoaded', function() {
     .catch(error => console.error("Error:", error));
 }
 
+// Save Invoice Button
+$('#save-invoice-btn').click(function() {
+    saveInvoice(false); // Save without printing
+});
+
+// Save & Print Invoice Button
+$('#save-print-invoice-btn').click(function() {
+    saveInvoice(true); // Save and print
+});
+
 function printInvoice() {
     // Clone the modal content to avoid modifying the original
     const printContents = document.getElementById('payAllModal').cloneNode(true);
 
     // Remove unnecessary elements
-    const elementsToRemove = printContents.querySelectorAll('.modal-footer, .btn-close');
+    const elementsToRemove = printContents.querySelectorAll('.modal-footer, .btn-close, .modal-header');
     elementsToRemove.forEach(el => el.remove());
 
     // Ensure customer details are visible
@@ -806,21 +821,46 @@ function printInvoice() {
         customerDetails.style.display = 'block';
     }
 
+    // Populate customer details in the print view
+    const customerName = $('#customer-name').val();
+    const customerAddress = $('#customer-address').val();
+    const customerPhone = $('#customer-phone').val();
+
+    if (customerName) {
+        printContents.querySelector('#customer-name').value = customerName;
+    }
+    if (customerAddress) {
+        printContents.querySelector('#customer-address').value = customerAddress;
+    }
+    if (customerPhone) {
+        printContents.querySelector('#customer-phone').value = customerPhone;
+    }
+
+    // Center align the company details and invoice header
+    const companyDetails = printContents.querySelector('.text-center');
+    if (companyDetails) {
+        companyDetails.style.textAlign = 'center';
+    }
+
     // Create a new window for printing
     const printWindow = window.open('', '_blank');
     printWindow.document.open();
     printWindow.document.write(`
         <html>
             <head>
-                <title>Invoice</title>
+               
                 <style>
                     /* Hide unnecessary elements when printing */
-                    .modal-footer, .btn-close {
+                    .modal-footer, .btn-close, .modal-header {
                         display: none !important;
                     }
                     /* Ensure customer details are visible */
                     .customer-details {
                         display: block !important;
+                    }
+                    /* Center align text */
+                    .text-center {
+                        text-align: center !important;
                     }
                     /* Add any additional print styles here */
                     body {
@@ -851,7 +891,8 @@ function printInvoice() {
     printWindow.print();
     printWindow.close();
 }
-    
+
+
 </script>
 
    
