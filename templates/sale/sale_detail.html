@@ -26,7 +26,7 @@
                         <div class="col-md-6">
                             <h4 class="mb-3">Sale Information</h4>
                             <p><strong>Total Amount:</strong> <span class="badge bg-success">₹{{ sale.total_amount }}</span></p>
-                            <p><strong>Date:</strong> {{ sale.created_at }}</p>
+                            <p><strong>Date:</strong> {{ sale.created_at|date:"F d, Y" }}</p>
                         </div>
                     </div>
 

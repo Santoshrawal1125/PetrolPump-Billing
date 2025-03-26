@@ -3,292 +3,297 @@
 {% block content %}
 
 <style>
-@media print {
-    .modal-footer, .btn-close, .modal-header {
-        display: none !important;
+    @media print {
+        .modal-footer, .btn-close, .modal-header {
+            display: none !important;
+        }
+        .customer-input-fields {
+            display: none !important;
+        }
+        .customer-details-print {
+            display: block !important;
+        }
+        .text-center {
+            text-align: center !important;
+        }
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
     }
-    .customer-details {
-        display: block !important;
+    .customer-details-print {
+        display: none;
     }
-    .text-center {
-        text-align: center !important;
-    }
-    body {
-        font-family: Arial, sans-serif;
-    }
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    th, td {
-        border: 1px solid #000;
-        padding: 8px;
-        text-align: left;
-    }
-    th {
-        background-color: #f2f2f2;
-    }
-}
-</style>
+    </style>
 
 
 
+    <div class="container-fluid mt-3">
+        <div class="row">
+            <!-- Invoice Section -->
+            <div class="col-lg-7 invoice-section">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">Sales Invoice</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Customer Section -->
+                        <div class="customer-section mb-3">
+                            <div class="d-flex align-items-center">
+                                <input type="text" class="form-control" id="customer-input" placeholder="Search customer..." autocomplete="off">
+                                <button class="btn btn-outline-primary ms-2" id="add-customer-btn" data-bs-toggle="modal" data-bs-target="#customerModal">
+                                    <i class="fas fa-user-plus"></i>
+                                </button>
+                            </div>
+                            <div id="customer-list" class="list-group position-absolute w-50 mt-2"></div>
+                        </div>
+                        
+                        <!-- Add Customer Modal -->
+                        <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="customerModalLabel">Add New Customer</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="customerForm">
+                                            {% csrf_token %}
+                                            <div class="mb-3">
+                                                <label for="name" class="form-label">Full Name</label>
+                                                <input type="text" class="form-control" id="name" name="name" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="phone" class="form-label">Phone Number</label>
+                                                <input type="text" class="form-control" id="phone" name="phone_number">
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="email" class="form-label">Email</label>
+                                                <input type="email" class="form-control" id="email" name="email" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label for="shipping_address" class="form-label">Address</label>
+                                                <textarea class="form-control" id="shipping_address" name="shipping_address"></textarea>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Save Customer</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
 
-<div class="container-fluid mt-3">
-    <div class="row">
-        <!-- Invoice Section -->
-        <div class="col-lg-7 invoice-section">
-            <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">Sales Invoice</h5>
-                </div>
-                <div class="card-body">
-                    <!-- Customer Section -->
-                    <div class="customer-section mb-3">
-                        <div class="d-flex align-items-center">
-                            <input type="text" class="form-control" id="customer-input" placeholder="Search customer..." autocomplete="off">
-                            <button class="btn btn-outline-primary ms-2" id="add-customer-btn" data-bs-toggle="modal" data-bs-target="#customerModal">
-                                <i class="fas fa-user-plus"></i>
+                        <!-- Search Bar -->
+                        <!-- <div class="search-bar mb-3">
+                            <input type="text" class="form-control" id="item-search" 
+                                placeholder="Item name/Barcode/Itemcode [Ctrl+Shift+S]"
+                                autocomplete="off">
+                        </div> -->
+
+                        <!-- Invoice Table -->
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <!-- <th><strong>ID</strong></th> -->
+                                        <th><strong>Item Name</strong></th>
+                                        <th><strong>Stock</strong></th>
+                                        <th><strong>Quantity</strong></th>
+                                        <th><strong>Price</strong></th>
+                                        <th><strong>Discount</strong></th>
+                                        <th><strong>Tax</strong></th>
+                                        <th><strong>Subtotal</strong></th>
+                                        
+                                    </tr>
+                                </thead>
+                                <tbody id="invoice-items"></tbody>
+                            </table>
+                        </div>
+
+                        <!-- Total Section -->
+                        <div class="total-section bg-light p-3 rounded">
+                            <div class="row">
+                                <div class="col-md-4 text-center">
+                                    <p class="mb-1">Quantity:</p>
+                                    <h4 id="total-quantity">0</h4>
+                                </div>
+                                <div class="col-md-4 text-center">
+                                    <p class="mb-1">Total Amount:</p>
+                                    <h4 id="total-amount">₹0.00</h4>
+                                </div>
+                                <div class="col-md-4 text-center">
+                                    <p class="mb-1">Grand Total:</p>
+                                    <h4 id="grand-total">₹0.00</h4>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-end mt-3">
+                            <!-- <button class="btn btn-danger" id="hold-btn">
+                                <i class="fas fa-pause"></i> Hold
                             </button>
-                        </div>
-                        <div id="customer-list" class="list-group position-absolute w-50 mt-2"></div>
-                    </div>
-                    
-                    <!-- Add Customer Modal -->
-                    <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerModalLabel" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="customerModalLabel">Add New Customer</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <form id="customerForm">
-                                        {% csrf_token %}
-                                        <div class="mb-3">
-                                            <label for="name" class="form-label">Full Name</label>
-                                            <input type="text" class="form-control" id="name" name="name" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="phone" class="form-label">Phone Number</label>
-                                            <input type="text" class="form-control" id="phone" name="phone_number">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="email" class="form-label">Email</label>
-                                            <input type="email" class="form-control" id="email" name="email" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="shipping_address" class="form-label">Address</label>
-                                            <textarea class="form-control" id="shipping_address" name="shipping_address"></textarea>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary">Save Customer</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-
-                    <!-- Search Bar -->
-                    <!-- <div class="search-bar mb-3">
-                        <input type="text" class="form-control" id="item-search" 
-                               placeholder="Item name/Barcode/Itemcode [Ctrl+Shift+S]"
-                               autocomplete="off">
-                    </div> -->
-
-                    <!-- Invoice Table -->
-                    <div class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <!-- <th><strong>ID</strong></th> -->
-                                    <th><strong>Item Name</strong></th>
-                                    <th><strong>Stock</strong></th>
-                                    <th><strong>Quantity</strong></th>
-                                    <th><strong>Price</strong></th>
-                                    <th><strong>Discount</strong></th>
-                                    <th><strong>Tax</strong></th>
-                                    <th><strong>Subtotal</strong></th>
-                                    
-                                </tr>
-                            </thead>
-                            <tbody id="invoice-items"></tbody>
-                        </table>
-                    </div>
-
-                    <!-- Total Section -->
-                    <div class="total-section bg-light p-3 rounded">
-                        <div class="row">
-                            <div class="col-md-4 text-center">
-                                <p class="mb-1">Quantity:</p>
-                                <h4 id="total-quantity">0</h4>
-                            </div>
-                            <div class="col-md-4 text-center">
-                                <p class="mb-1">Total Amount:</p>
-                                <h4 id="total-amount">₹0.00</h4>
-                            </div>
-                            <div class="col-md-4 text-center">
-                                <p class="mb-1">Grand Total:</p>
-                                <h4 id="grand-total">₹0.00</h4>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="d-flex justify-content-between mt-3">
-                        <button class="btn btn-danger" id="hold-btn">
-                            <i class="fas fa-pause"></i> Hold
-                        </button>
-                        <button class="btn btn-info" id="multiple-btn">
-                            <i class="fas fa-credit-card"></i> Multiple
-                        </button>
-                        <button class="btn btn-success" id="cash-btn">
-                            <i class="fas fa-money-bill"></i> Cash
-                        </button>
-                        <button class="btn btn-primary" id="pay-all-btn">
-                            <i class="fas fa-check-circle"></i> Pay All
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Products Section -->
-        <div class="col-lg-5 products-section" style="background-color: aliceblue;">
-            <!-- Filters -->
-            <div class="row mb-3">
-                <div class="col-6" style="position: relative;">
-                    <!-- Custom dropdown trigger -->
-                    <div id="category-display" style="width: 100%; padding: 10px 15px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; cursor: pointer; background-color: white; text-align: left; position: relative; margin-top: 10px;">
-                        All Categories
-                        <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%);">▼</span>
-                    </div>
-                    
-                   
-                    <!-- Hidden original select for form submission -->
-                    <select class="form-select" id="category-filter" style="display: none;">
-                        <option value="">All Categories</option>
-                        {% for category in categories %}
-                        <option value="{{ category.id }}">{{ category.name }}</option>
-                        {% endfor %}
-                    </select>
-                    
-                    <!-- Custom dropdown menu -->
-                    <div id="custom-dropdown" style="position: absolute; width: 100%; max-height: 300px; overflow-y: auto; background: white; border: 1px solid #ccc; border-top: none; z-index: 10; display: none;">
-                        <!-- Search box -->
-                        <input type="text" id="category-search" style="width: calc(100% - 30px); margin: 10px 15px; padding: 5px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Search...">
-                        
-                        <!-- Dropdown items -->
-                        <div class="dropdown-item" data-value="" style="padding: 10px 15px; cursor: pointer; font-size: 14px; background-color: #eee;">All Categories</div>
-                        {% for category in categories %}
-                        <div class="dropdown-item" data-value="{{ category.id }}" style="padding: 10px 15px; cursor: pointer; font-size: 14px;">{{ category.name }}</div>
-                        {% endfor %}
-                        
-                        <!-- Scroll indicator -->
-                        <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 4px; background-color: #d00;"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Product Grid -->
-            <div class="row" id="product-grid">
-                {% for item in items %}
-                <div class="col-md-4 col-sm-6 mb-3 product-card" 
-                     data-category="{{ item.category.id }}" 
-                     data-brand="{{ item.brand }}">
-                    <div class="card h-100">
-                        <span class="badge bg-danger quantity-badge">Qty: {{ item.quantity }}</span>
-                        {% if item.image %}
-                        <img src="{{ item.image.url }}" class="card-img-top product-image" alt="{{ item.name }}">
-                        {% else %}
-                        <img src="{% static 'images/no-image.png' %}" class="card-img-top product-image" alt="No Image">
-                        {% endif %}
-                        <div class="card-body text-center">
-                            <h6 class="card-title">{{ item.name }}</h6>
-                            <p class="text-success mb-2">₹{{ item.price }}</p>
-                            <button class="btn btn-primary btn-sm w-100 add-to-invoice" 
-                                    data-id="{{ item.id }}"
-                                    data-name="{{ item.name }}"
-                                    data-price="{{ item.price }}"
-                                    data-stock="{{ item.quantity }}">
-                                Add
+                            <button class="btn btn-info" id="multiple-btn">
+                                <i class="fas fa-credit-card"></i> Multiple
+                            </button>
+                            <button class="btn btn-success" id="cash-btn">
+                                <i class="fas fa-money-bill"></i> Cash
+                            </button> -->
+                            <button class="btn btn-primary" id="pay-all-btn">
+                                <i class="fas fa-check-circle"></i> Pay All
                             </button>
                         </div>
                     </div>
                 </div>
-                {% endfor %}
             </div>
-        </div>
-    </div>
-</div>
 
-<!-- Hold Invoice Modal -->
-<div class="modal fade" id="holdInvoiceModal" tabindex="-1" aria-labelledby="holdInvoiceModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="holdInvoiceModalLabel">Hold Invoice</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>Same Reference will replace the old list if exist!</p>
-                <input type="text" class="form-control" id="reference-number" placeholder="Enter Reference Number">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="hold-invoice-btn">OK</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Multiple Payments Modal -->
-<div class="modal fade" id="multiplePaymentsModal" tabindex="-1" aria-labelledby="multiplePaymentsModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="multiplePaymentsModalLabel">Multiple Payments</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label for="payment-amount" class="form-label">Amount</label>
-                    <input type="number" class="form-control" id="payment-amount" placeholder="Enter Amount">
-                </div>
-                <div class="mb-3">
-                    <label for="payment-type" class="form-label">Payment Type</label>
-                    <select class="form-select" id="payment-type">
-                        <option value="cash">Cash</option>
-                        <option value="card">Card</option>
-                        <option value="upi">UPI</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label for="payment-note" class="form-label">Payment Note</label>
-                    <input type="text" class="form-control" id="payment-note" placeholder="Enter Payment Note">
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        <p>Total Items: <span id="modal-total-items">0</span></p>
-                        <p>Total: ₹<span id="modal-total">0.00</span></p>
-                        <p>Discount(-): ₹<span id="modal-discount">0.00</span></p>
-                        <p>Total Payable: ₹<span id="modal-total-payable">0.00</span></p>
-                    </div>
-                    <div class="col-md-6">
-                        <p>Total Paying: ₹<span id="modal-total-paying">0.00</span></p>
-                        <p>Balance: ₹<span id="modal-balance">0.00</span></p>
-                        <p>Change Return: ₹<span id="modal-change-return">0.00</span></p>
+            <!-- Products Section -->
+            <div class="col-lg-5 products-section" style="background-color: aliceblue;">
+                <!-- Filters -->
+                <div class="row mb-3">
+                    <div class="col-6" style="position: relative;">
+                        <!-- Custom dropdown trigger -->
+                        <div id="category-display" style="width: 100%; padding: 10px 15px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; cursor: pointer; background-color: white; text-align: left; position: relative; margin-top: 10px;">
+                            All Categories
+                            <span style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%);">▼</span>
+                        </div>
+                        
+                    
+                        <!-- Hidden original select for form submission -->
+                        <select class="form-select" id="category-filter" style="display: none;">
+                            <option value="">All Categories</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.name }}</option>
+                            {% endfor %}
+                        </select>
+                        
+                        <!-- Custom dropdown menu -->
+                        <div id="custom-dropdown" style="position: absolute; width: 100%; max-height: 300px; overflow-y: auto; background: white; border: 1px solid #ccc; border-top: none; z-index: 10; display: none;">
+                            <!-- Search box -->
+                            <input type="text" id="category-search" style="width: calc(100% - 30px); margin: 10px 15px; padding: 5px; border: 1px solid #ccc; border-radius: 4px;" placeholder="Search...">
+                            
+                            <!-- Dropdown items -->
+                            <div class="dropdown-item" data-value="" style="padding: 10px 15px; cursor: pointer; font-size: 14px; background-color: #eee;">All Categories</div>
+                            {% for category in categories %}
+                            <div class="dropdown-item" data-value="{{ category.id }}" style="padding: 10px 15px; cursor: pointer; font-size: 14px;">{{ category.name }}</div>
+                            {% endfor %}
+                            
+                            <!-- Scroll indicator -->
+                            <div style="position: absolute; right: 0; top: 0; bottom: 0; width: 4px; background-color: #d00;"></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="save-payment-btn">Save</button>
-                <button type="button" class="btn btn-success" id="save-print-payment-btn">Save & Print</button>
+
+                <!-- Product Grid -->
+                <div class="row" id="product-grid">
+                    {% for item in items %}
+                    <div class="col-md-4 col-sm-6 mb-3 product-card" 
+                        data-category="{{ item.category.id }}" 
+                        data-brand="{{ item.brand }}">
+                        <div class="card h-100">
+                            <span class="badge bg-danger quantity-badge">Qty: {{ item.quantity }}</span>
+                            {% if item.image %}
+                            <img src="{{ item.image.url }}" class="card-img-top product-image" alt="{{ item.name }}">
+                            {% else %}
+                            <img src="{% static 'images/no-image.png' %}" class="card-img-top product-image" alt="No Image">
+                            {% endif %}
+                            <div class="card-body text-center">
+                                <h6 class="card-title">{{ item.name }}</h6>
+                                <p class="text-success mb-2">₹{{ item.price }}</p>
+                                <button class="btn btn-primary btn-sm w-100 add-to-invoice" 
+                                        data-id="{{ item.id }}"
+                                        data-name="{{ item.name }}"
+                                        data-price="{{ item.price }}"
+                                        data-stock="{{ item.quantity }}">
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
-</div>
+
+    <!-- Hold Invoice Modal -->
+    <!-- <div class="modal fade" id="holdInvoiceModal" tabindex="-1" aria-labelledby="holdInvoiceModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="holdInvoiceModalLabel">Hold Invoice</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Same Reference will replace the old list if exist!</p>
+                    <input type="text" class="form-control" id="reference-number" placeholder="Enter Reference Number">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="hold-invoice-btn">OK</button>
+                </div>
+            </div>
+        </div>
+    </div> -->
+
+    <!-- Multiple Payments Modal -->
+    <!-- <div class="modal fade" id="multiplePaymentsModal" tabindex="-1" aria-labelledby="multiplePaymentsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="multiplePaymentsModalLabel">Multiple Payments</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="payment-amount" class="form-label">Amount</label>
+                        <input type="number" class="form-control" id="payment-amount" placeholder="Enter Amount">
+                    </div>
+                    <div class="mb-3">
+                        <label for="payment-type" class="form-label">Payment Type</label>
+                        <select class="form-select" id="payment-type">
+                            <option value="cash">Cash</option>
+                            <option value="card">Card</option>
+                            <option value="upi">UPI</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="payment-note" class="form-label">Payment Note</label>
+                        <input type="text" class="form-control" id="payment-note" placeholder="Enter Payment Note">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p>Total Items: <span id="modal-total-items">0</span></p>
+                            <p>Total: ₹<span id="modal-total">0.00</span></p>
+                            <p>Discount(-): ₹<span id="modal-discount">0.00</span></p>
+                            <p>Total Payable: ₹<span id="modal-total-payable">0.00</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p>Total Paying: ₹<span id="modal-total-paying">0.00</span></p>
+                            <p>Balance: ₹<span id="modal-balance">0.00</span></p>
+                            <p>Change Return: ₹<span id="modal-change-return">0.00</span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="save-payment-btn">Save</button>
+                    <button type="button" class="btn btn-success" id="save-print-payment-btn">Save & Print</button>
+                </div>
+            </div>
+        </div>
+    </div> -->
 
 <!-- Pay All Modal -->
 <div class="modal fade" id="payAllModal" tabindex="-1" aria-labelledby="payAllModalLabel" aria-hidden="true">
@@ -310,17 +315,22 @@
                 
                     <!-- Customer Details Input Fields -->
                     <div class="customer-details mb-3 p-2 border rounded">
-                        <div class="d-flex align-items-center gap-3">
-                            <label for="customer-name" class="small fw-bold">Name:</label>
-                            <input type="text" class="form-control form-control-sm w-auto" id="customer-name" placeholder="_______">
-
-                            <label for="customer-address" class="small fw-bold">Address:</label>
-                            <input type="text" class="form-control form-control-sm w-auto" id="customer-address" placeholder="_______">
-
-                            <label for="customer-phone" class="small fw-bold">Phone:</label>
-                            <input type="text" class="form-control form-control-sm w-auto" id="customer-phone" placeholder="_______">
+                        <div class="row g-3">
+                            <div class="col-md-4 col-12">
+                                <label for="customer-name" class="small fw-bold">Name:</label>
+                                <input type="text" class="form-control form-control-sm" id="customer-name" placeholder="Enter name">
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label for="customer-address" class="small fw-bold">Address:</label>
+                                <input type="text" class="form-control form-control-sm" id="customer-address" placeholder="Enter address">
+                            </div>
+                            <div class="col-md-4 col-12">
+                                <label for="customer-phone" class="small fw-bold">Phone:</label>
+                                <input type="text" class="form-control form-control-sm" id="customer-phone" placeholder="Enter phone">
+                            </div>
                         </div>
                     </div>
+
 
                 </div>
                 <table class="table">

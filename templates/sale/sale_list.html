@@ -62,7 +62,9 @@
                                     <td>{{ sale.customer_name }}</td>
                                     <td>{{ sale.customer_phone }}</td>
                                     <td>₹{{ sale.total_amount }}</td>
-                                    <td>{{ sale.created_at }}</td>
+                                    <td>{{ sale.created_at|date:"F d, Y" }}</td>
+
+
                                     <td>
                                         <a href="{% url 'frontend:sale_detail' sale.id %}">
                                             <i class="fas fa-eye"></i> View Details
