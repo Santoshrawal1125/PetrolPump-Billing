@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
+from django.db.models import Sum
 from django.contrib.auth.forms import PasswordChangeForm
 import csv
 import json
@@ -731,3 +732,24 @@ def export_items_excel(request):
     workbook.save(response)
 
     return response
+
+
+def customer_detail_view(request, pk):
+    customer = get_object_or_404(Customer, pk=pk)
+    
+    # Search sales by both name and phone for better matching
+    sales = Sale.objects.filter(
+        Q(customer_name__iexact=customer.name) |
+        Q(customer_phone__iexact=customer.phone_number)
+    ).prefetch_related('saleitem_set').distinct()
+    
+    total_purchases = sales.aggregate(total=Sum('total_amount'))['total'] or 0
+    invoice = Invoice.objects.create() 
+    
+    context = {
+        'customer': customer,
+        'sales': sales,
+        'total_purchases': total_purchases,
+        'invoice':invoice
+    }
+    return render(request, 'customer/customer_detail.html', context)

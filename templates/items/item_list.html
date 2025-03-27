@@ -36,10 +36,7 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th class="text-center">
-                                        <!-- <input type="checkbox" class="form-check-input" id="selectAll">
-                                     -->
-                                    </th>
+                                    
                                     <th><strong>ID</strong></th>
                                     <th><strong>Item Code</strong></th>
                                     <th><strong>Name</strong></th>
@@ -53,10 +50,7 @@
                             <tbody>
                                 {% for item in page_obj %}
                                 <tr>
-                                    <td class="text-center">
-                                        <input type="checkbox" class="form-check-input" name="selected_items" value="{{ item.id }}">
                                     
-                                    </td>
                                     <td>{{ forloop.counter|add:page_obj.start_index|add:"-1" }}</td>
                                     <td>{{ item.item_code }}</td>
                                     <td>{{ item.name }}</td>

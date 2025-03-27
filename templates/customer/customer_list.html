@@ -37,9 +37,7 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th class="text-center">
-                                        <strong></strong>
-                                    </th>
+                                    
                                     <th><strong>ID</strong></th>
                                     <th><strong>Created By (Name)</strong></th>
                                     <th><strong>Customer Name</strong></th>
@@ -52,12 +50,12 @@
                             <tbody>
                                 {% for customer in customers %}
                                 <tr>
-                                    <td class="text-center">
-                                        <input type="checkbox" class="form-check-input" name="selected_customers" value="{{ customer.id }}">
-                                    </td>
+                                   
                                     <td>{{ forloop.counter|add:page_obj.start_index|add:"-1" }}</td>
                                     <td>{{ customer.created_by }}</td>
-                                    <td>{{ customer.name }}</td>
+                                    <td> <a href="{% url 'frontend:customer_detail' customer.id %}" class="text-decoration-none">
+                                        {{ customer.name }}
+                                    </a></td>
                                     <td>{{ customer.email }}</td>
                                     <td>{{ customer.phone_number }}</td>
                                     <td>{{ customer.shipping_address }}</td>

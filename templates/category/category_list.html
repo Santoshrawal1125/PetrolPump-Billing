@@ -29,9 +29,7 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>
-                                <!-- <input type="checkbox" class="form-check-input"> -->
-                            </th>
+                           
                             <th><strong>ID</strong></th>
                             <th><strong>Name</strong></th>
                             <th><strong>Description</strong></th>
@@ -41,9 +39,7 @@
                     <tbody>
                         {% for category in page_obj %}
                         <tr>
-                            <td>
-                                <input type="checkbox" class="form-check-input">
-                            </td>
+                            
                             <td>{{ forloop.counter }}</td>
                             <td>{{ category.name }}</td>
                             <td>{{ category.description|default:"N/A" }}</td>

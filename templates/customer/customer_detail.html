@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#" class="text-decoration-none">Customers List</a></li>
+            <li class="breadcrumb-item active">Customer Details</li>
+        </ol>
+    </nav>
+
+    <!-- Customer Info Card -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4>Customer Information</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Name:</strong> {{ customer.name }}</p>
+                    <p><strong>Email:</strong> {{ customer.email }}</p>
+                    <p><strong>Phone:</strong> {{ customer.phone_number }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Shipping Address:</strong> {{ customer.shipping_address }}</p>
+                    <p><strong>Created By:</strong> {{ customer.created_by }}</p>
+                    <p><strong>Date Created:</strong> {{ customer.created_at|date:"M d, Y" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Purchase History Card -->
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h4>Purchase History</h4>
+        </div>
+        <div class="card-body">
+            {% if sales %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Invoice </th>
+                            <th>Items</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Discount</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sale in sales %}
+                        {% for item in sale.saleitem_set.all %}
+                        <tr>
+                            {% if forloop.first %}
+                            <td rowspan="{{ sale.saleitem_set.count }}">{{ sale.created_at|date:"M d, Y" }}</td>
+                            <td rowspan="{{ sale.saleitem_set.count }}">
+                                <a href="{% url 'frontend:sale_detail' sale.id %}">#{{ invoice.invoice_number }}</a>
+                            </td>
+                            {% endif %}
+                            <td>{{ item.item_name }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>₹{{ item.price }}</td>
+                            <td>{{ item.discount }}</td>
+                            <td>₹{{ item.subtotal }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr class="bg-light">
+                            <td colspan="5"></td>
+                            
+                            <td><strong>Sale Total:</strong></td>
+                            <td><strong>₹{{ sale.total_amount }}</strong></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                No purchase history found for this customer.
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="mt-3">
+        <a href="{% url 'frontend:edit_customer' customer.id %}" class="btn btn-primary me-2">
+            <i class="fas fa-edit"></i> Edit Customer
+        </a>
+        <a href="{% url 'frontend:customers_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Customer List
+        </a>
+    </div>
+</div>
+{% endblock %}

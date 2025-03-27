@@ -25,6 +25,7 @@ urlpatterns = [
    ### customer
    path('customers/', views.customer_list, name='customers_list'),
    path('add-customer/', views.add_customer, name='add_customer'),
+   path('customers/<int:pk>/', views.customer_detail_view, name='customer_detail'),
    path('edit-customer/<int:pk>/', views.edit_customer, name='edit_customer'),
    path('delete-customer/<int:pk>/', views.delete_customer, name='delete_customer'),
 
