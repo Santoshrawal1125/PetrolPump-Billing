@@ -1,17 +1,16 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-
 <style>
     @media print {
         .modal-footer, .btn-close, .modal-header {
             display: none !important;
         }
         .customer-input-fields {
-            display: none !important;
+            display: none !important;  /* Hide the input fields when printing */
         }
         .customer-details-print {
-            display: block !important;
+            display: block !important;  /* Show the print version if you have one */
         }
         .text-center {
             text-align: center !important;
@@ -35,9 +34,7 @@
     .customer-details-print {
         display: none;
     }
-    </style>
-
-
+</style>
 
     <div class="container-fluid mt-3">
         <div class="row">
@@ -295,616 +292,618 @@
         </div>
     </div> -->
 
-<!-- Pay All Modal -->
-<div class="modal fade" id="payAllModal" tabindex="-1" aria-labelledby="payAllModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="payAllModalLabel">Invoice Details</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="text-center">
-                    <h4>{{ organization.company_name }}</h4>
-                    <p>Address: {{ organization.location }}</p>
-                    <p>PAN Number / VAT: {{ organization.pan_vat }}</p>
-                    <p>Phone: {{ organization.phone }}, {{ organization.telephone }}</p>
-                    <hr>
-                    <h5>-----------------Invoice-----------------</h5>
-                    <p>Invoice #{{ invoice.invoice_number }}</p>
-                
-                    <!-- Customer Details Input Fields -->
-                    <div class="customer-details mb-3 p-2 border rounded">
-                        <div class="row g-3">
-                            <div class="col-md-4 col-12">
-                                <label for="customer-name" class="small fw-bold">Name:</label>
-                                <input type="text" class="form-control form-control-sm" id="customer-name" placeholder="Enter name">
-                            </div>
-                            <div class="col-md-4 col-12">
-                                <label for="customer-address" class="small fw-bold">Address:</label>
-                                <input type="text" class="form-control form-control-sm" id="customer-address" placeholder="Enter address">
-                            </div>
-                            <div class="col-md-4 col-12">
-                                <label for="customer-phone" class="small fw-bold">Phone:</label>
-                                <input type="text" class="form-control form-control-sm" id="customer-phone" placeholder="Enter phone">
+    <!-- Pay All Modal -->
+    <div class="modal fade" id="payAllModal" tabindex="-1" aria-labelledby="payAllModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="payAllModalLabel">Invoice Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center">
+                        <h4>{{ organization.company_name }}</h4>
+                        <p>Address: {{ organization.location }}</p>
+                        <p>PAN Number / VAT: {{ organization.pan_vat }}</p>
+                        <p>Phone: {{ organization.phone }}, {{ organization.telephone }}</p>
+                        <hr>
+                        <h5>-----------------Invoice-----------------</h5>
+                        <p>Invoice #{{ invoice.invoice_number }}</p>
+                    
+                        <!-- Customer Details Input Fields -->
+                        <div class="customer-details mb-3 p-2 border rounded">
+                            <div class="row g-3">
+                                <div class="col-md-4 col-12">
+                                    <label for="customer-name" class="small fw-bold">Name:</label>
+                                    <input type="text" class="form-control form-control-sm" id="customer-name" placeholder="Enter name">
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label for="customer-address" class="small fw-bold">Address:</label>
+                                    <input type="text" class="form-control form-control-sm" id="customer-address" placeholder="Enter address">
+                                </div>
+                                <div class="col-md-4 col-12">
+                                    <label for="customer-phone" class="small fw-bold">Phone:</label>
+                                    <input type="text" class="form-control form-control-sm" id="customer-phone" placeholder="Enter phone">
+                                </div>
                             </div>
                         </div>
-                    </div>
 
 
-                </div>
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>S.N</th>
-                            <th>Item</th>
-                            <th>Price</th>
-                            <th>Quantity</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody id="invoice-details-body"></tbody>
-                </table>
-                <div class="row">
-                    <div class="col-md-6 me-auto text-start"> 
-                        <p>Tax Amount: ₹<span id="invoice-tax-amount">0.00</span></p>
-                        <p>Discount: ₹<span id="invoice-total-discount">0.00</span></p>
-                        <p><strong>Grand Total: ₹<span id="invoice-total">0.00</span></strong></p>
                     </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>S.N</th>
+                                <th>Item</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoice-details-body"></tbody>
+                    </table>
+                    <div class="row">
+                        <div class="col-md-6 me-auto text-start"> 
+                            <p>Tax Amount: ₹<span id="invoice-tax-amount">0.00</span></p>
+                            <p>Discount: ₹<span id="invoice-total-discount">0.00</span></p>
+                            <p><strong>Grand Total: ₹<span id="invoice-total">0.00</span></strong></p>
+                        </div>
+                    </div>
+                    
+                    
                 </div>
-                
-                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" id="save-invoice-btn" onclick="saveInvoice()">Save</button>
+                <button type="button" class="btn btn-success" id="save-print-invoice-btn" onclick="printInvoice()">Save & Print</button>
+                </div>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-success" id="save-invoice-btn" onclick="saveInvoice()">Save</button>
-               <button type="button" class="btn btn-success" id="save-print-invoice-btn" onclick="printInvoice()">Save & Print</button>
-            </div>
-            </div>
-        </div>
     </div>
-</div>
+    </div>
 
-{% block extra_css %}
-<style>
-    .product-card {
-        transition: transform 0.2s;
-    }
-    
-    .product-card:hover {
-        transform: translateY(-5px);
-    }
-    
-    .product-image {
-        height: 120px;
-        object-fit: contain;
-        padding: 10px;
-    }
-    
-    .quantity-badge {
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        z-index: 1;
-    }
-    
-    .table-responsive {
-        max-height: 400px;
-        overflow-y: auto;
-    }
-    
-    @media (max-width: 768px) {
-        .invoice-section {
-            order: 2;
-            margin-top: 20px;
+    {% block extra_css %}
+    <style>
+        .product-card {
+            transition: transform 0.2s;
         }
         
-        .products-section {
-            order: 1;
+        .product-card:hover {
+            transform: translateY(-5px);
         }
-    }
-</style>
-{% endblock %}
-
-{% block extra_js %}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-$(document).ready(function() {
-    console.log("jQuery Loaded:", typeof jQuery !== 'undefined');
-    
-    // Add item to invoice
-    $(document).on('click', '.add-to-invoice', function() {
-        const itemId = $(this).data('id');
-        const itemName = $(this).data('name');
-        const itemPrice = $(this).data('price');
-        const itemStock = $(this).data('stock');
-    
-        console.log("Product clicked:", itemId, itemName, itemPrice, itemStock);
-    
-        const existingRow = $(`#invoice-items tr[data-id="${itemId}"]`);
-        if (existingRow.length) {
-            const qtyInput = existingRow.find('input.quantity-input');
-            const currentQty = parseInt(qtyInput.val());
-            if (currentQty < itemStock) {
-                qtyInput.val(currentQty + 1);
-                updateRowTotal(existingRow);
+        
+        .product-image {
+            height: 120px;
+            object-fit: contain;
+            padding: 10px;
+        }
+        
+        .quantity-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            z-index: 1;
+        }
+        
+        .table-responsive {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .invoice-section {
+                order: 2;
+                margin-top: 20px;
             }
-        } else {
-            const newRow = `
-                <tr data-id="${itemId}">
-                    <td>${itemName}</td>
-                    <td>${itemStock}</td>
-                    <td>
-                        <input type="number" class="form-control form-control-sm quantity-input" 
-                               value="1" min="1" max="${itemStock}">
-                    </td>
-                    <td class="item-price">${itemPrice}</td>
-                    <td>
-                        <input type="number" class="form-control form-control-sm discount-input" 
-                               value="0" min="0">
-                    </td>
-                    <td>
-                        <input type="number" class="form-control form-control-sm tax-input" 
-                               value="0" min="0">
-                    </td>
-                    <td class="subtotal">${itemPrice}</td>
-                    <td>
-                        <button class="btn btn-danger btn-sm remove-item">×</button>
-                    </td>
-                </tr>
-            `;
-            $('#invoice-items').append(newRow);
-            console.log("Product added to table:", newRow);
+            
+            .products-section {
+                order: 1;
+            }
         }
-        updateTotals();
-    });
+    </style>
+    {% endblock %}
 
-    // Update row total
-    function updateRowTotal(row) {
-        const qty = parseInt(row.find('input.quantity-input').val());
-        const price = parseFloat(row.find('.item-price').text());
-        const discount = parseFloat(row.find('.discount-input').val()) || 0;
-        const tax = parseFloat(row.find('.tax-input').val()) || 0;
-        const subtotal = (qty * price) - discount + (qty * price * tax / 100);
-        row.find('.subtotal').text(subtotal.toFixed(2));
-        updateTotals();
-    }
-
-    // Update totals
-    function updateTotals() {
-        let totalQuantity = 0;
-        let totalAmount = 0;
-        $('#invoice-items tr').each(function() {
-            totalQuantity += parseInt($(this).find('input.quantity-input').val()) || 0;
-            totalAmount += parseFloat($(this).find('.subtotal').text()) || 0;
+    {% block extra_js %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    $(document).ready(function() {
+        console.log("jQuery Loaded:", typeof jQuery !== 'undefined');
+        
+        // Add item to invoice
+        $(document).on('click', '.add-to-invoice', function() {
+            const itemId = $(this).data('id');
+            const itemName = $(this).data('name');
+            const itemPrice = $(this).data('price');
+            const itemStock = $(this).data('stock');
+        
+            console.log("Product clicked:", itemId, itemName, itemPrice, itemStock);
+        
+            const existingRow = $(`#invoice-items tr[data-id="${itemId}"]`);
+            if (existingRow.length) {
+                const qtyInput = existingRow.find('input.quantity-input');
+                const currentQty = parseInt(qtyInput.val());
+                if (currentQty < itemStock) {
+                    qtyInput.val(currentQty + 1);
+                    updateRowTotal(existingRow);
+                }
+            } else {
+                const newRow = `
+                    <tr data-id="${itemId}">
+                        <td>${itemName}</td>
+                        <td>${itemStock}</td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm quantity-input" 
+                                value="1" min="1" max="${itemStock}">
+                        </td>
+                        <td class="item-price">${itemPrice}</td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm discount-input" 
+                                value="0" min="0">
+                        </td>
+                        <td>
+                            <input type="number" class="form-control form-control-sm tax-input" 
+                                value="0" min="0">
+                        </td>
+                        <td class="subtotal">${itemPrice}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm remove-item">×</button>
+                        </td>
+                    </tr>
+                `;
+                $('#invoice-items').append(newRow);
+                console.log("Product added to table:", newRow);
+            }
+            updateTotals();
         });
-        $('#total-quantity').text(totalQuantity);
-        $('#total-amount').text(totalAmount.toFixed(2));
-        $('#grand-total').text(totalAmount.toFixed(2));
-    }
 
-    // Handle quantity change
-    $(document).on('input', '.quantity-input', function() {
-        const row = $(this).closest('tr');
-        updateRowTotal(row);
-    });
-
-    // Handle discount and tax change
-    $(document).on('input', '.discount-input, .tax-input', function() {
-        const row = $(this).closest('tr');
-        updateRowTotal(row);
-    });
-
-    // Remove item
-    $(document).on('click', '.remove-item', function() {
-        $(this).closest('tr').remove();
-        updateTotals();
-    });
-
-    // Hold Invoice
-    $('#hold-btn').click(function() {
-        $('#holdInvoiceModal').modal('show');
-    });
-
-    $('#hold-invoice-btn').click(function() {
-        const referenceNumber = $('#reference-number').val();
-        if (referenceNumber) {
-            alert(`Invoice held with reference number: ${referenceNumber}`);
-            $('#holdInvoiceModal').modal('hide');
-        } else {
-            alert("Please enter a reference number!");
+        // Update row total
+        function updateRowTotal(row) {
+            const qty = parseInt(row.find('input.quantity-input').val());
+            const price = parseFloat(row.find('.item-price').text());
+            const discount = parseFloat(row.find('.discount-input').val()) || 0;
+            const tax = parseFloat(row.find('.tax-input').val()) || 0;
+            const subtotal = (qty * price) - discount + (qty * price * tax / 100);
+            row.find('.subtotal').text(subtotal.toFixed(2));
+            updateTotals();
         }
-    });
-
-    // Multiple Payments
-    $('#multiple-btn').click(function() {
-        $('#modal-total-items').text($('#total-quantity').text());
-        $('#modal-total').text($('#total-amount').text());
-        $('#modal-total-payable').text($('#grand-total').text());
-        $('#multiplePaymentsModal').modal('show');
-    });
-
-    $('#save-payment-btn').click(function() {
-        alert("Payment saved!");
-        $('#multiplePaymentsModal').modal('hide');
-    });
-
-    $('#save-print-payment-btn').click(function() {
-        alert("Payment saved and printed!");
-        $('#multiplePaymentsModal').modal('hide');
-    });
-
-    // Pay All
-// Pay All
-$('#pay-all-btn').click(function() {
-    $('#invoice-details-body').empty();
-    let totalTax = 0;
-    let totalDiscount = 0;
-    let totalAmount = 0;
-
-    $('#invoice-items tr').each(function() {
-        const itemName = $(this).find('td').eq(0).text();
-        const price = parseFloat($(this).find('.item-price').text());
-        const quantity = parseInt($(this).find('.quantity-input').val());
-        const discount = parseFloat($(this).find('.discount-input').val()) || 0;
-        const tax = parseFloat($(this).find('.tax-input').val()) || 0;
-        const subtotal = (price * quantity) - discount + (price * quantity * tax / 100);
 
         // Update totals
-        totalTax += (price * quantity * tax / 100);
-        totalDiscount += discount;
-        totalAmount += subtotal;
-
-        // Add row to the modal table
-        $('#invoice-details-body').append(`
-            <tr>
-                <td>1</td>
-                <td>${itemName}</td>
-                <td>₹${price.toFixed(2)}</td>
-                <td>${quantity}</td>
-                <td>₹${subtotal.toFixed(2)}</td>
-            </tr>
-        `);
-    });
-
-    // Update the modal with calculated totals
-    $('#invoice-tax-amount').text(totalTax.toFixed(2));
-    $('#invoice-total-discount').text(totalDiscount.toFixed(2));
-    $('#invoice-total').text(totalAmount.toFixed(2));
-
-    // Show the modal
-    $('#payAllModal').modal('show');
-});
-
-    // Save Invoice
-    $('#save-invoice-btn').click(function() {
-        // Here you can add the logic to save the invoice to the database
-        alert("Invoice saved!");
-        $('#payAllModal').modal('hide');
-    });
-
-    // Save and Print Invoice
-    $('#save-print-invoice-btn').click(function() {
-        // Here you can add the logic to save the invoice to the database
-        alert("Invoice saved and printed!");
-        $('#payAllModal').modal('hide');
-        
-        // Print the invoice
-        printInvoice();
-    });
-
-    // Function to print the invoice
-    function printInvoice() {
-        const printContents = document.getElementById('payAllModal').innerHTML;
-        const originalContents = document.body.innerHTML;
-
-        document.body.innerHTML = printContents;
-        window.print();
-        document.body.innerHTML = originalContents;
-        window.location.reload(); // Reload the page to restore the original content
-    }
-});
-</script>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const categoryDisplay = document.getElementById('category-display');
-    const customDropdown = document.getElementById('custom-dropdown');
-    const categorySearch = document.getElementById('category-search');
-    const dropdownItems = document.querySelectorAll('.dropdown-item');
-    const categoryFilter = document.getElementById('category-filter');
-    const productGrid = document.getElementById('product-grid');
-    const productCards = document.querySelectorAll('.product-card');
-
-    // Toggle dropdown
-    categoryDisplay.addEventListener('click', function() {
-        const isVisible = customDropdown.style.display === 'block';
-        customDropdown.style.display = isVisible ? 'none' : 'block';
-        if (!isVisible) {
-            categorySearch.focus();
+        function updateTotals() {
+            let totalQuantity = 0;
+            let totalAmount = 0;
+            $('#invoice-items tr').each(function() {
+                totalQuantity += parseInt($(this).find('input.quantity-input').val()) || 0;
+                totalAmount += parseFloat($(this).find('.subtotal').text()) || 0;
+            });
+            $('#total-quantity').text(totalQuantity);
+            $('#total-amount').text(totalAmount.toFixed(2));
+            $('#grand-total').text(totalAmount.toFixed(2));
         }
-    });
 
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(event) {
-        if (!categoryDisplay.contains(event.target) && !customDropdown.contains(event.target)) {
-            customDropdown.style.display = 'none';
-        }
-    });
-
-    // Select category
-    dropdownItems.forEach(item => {
-        item.addEventListener('click', function() {
-            // Update display
-            categoryDisplay.textContent = this.textContent;
-            categoryDisplay.appendChild(document.createElement('span')).textContent = '▼';
-            categoryDisplay.querySelector('span').style.position = 'absolute';
-            categoryDisplay.querySelector('span').style.right = '15px';
-            categoryDisplay.querySelector('span').style.top = '50%';
-            categoryDisplay.querySelector('span').style.transform = 'translateY(-50%)';
-
-            // Update actual select element
-            categoryFilter.value = this.dataset.value;
-
-            // Update styling
-            dropdownItems.forEach(i => i.style.backgroundColor = '');
-            this.style.backgroundColor = '#eee';
-
-            // Hide dropdown
-            customDropdown.style.display = 'none';
-
-            // Filter products based on selected category
-            filterProducts(this.dataset.value);
+        // Handle quantity change
+        $(document).on('input', '.quantity-input', function() {
+            const row = $(this).closest('tr');
+            updateRowTotal(row);
         });
+
+        // Handle discount and tax change
+        $(document).on('input', '.discount-input, .tax-input', function() {
+            const row = $(this).closest('tr');
+            updateRowTotal(row);
+        });
+
+        // Remove item
+        $(document).on('click', '.remove-item', function() {
+            $(this).closest('tr').remove();
+            updateTotals();
+        });
+
+        // Hold Invoice
+        $('#hold-btn').click(function() {
+            $('#holdInvoiceModal').modal('show');
+        });
+
+        $('#hold-invoice-btn').click(function() {
+            const referenceNumber = $('#reference-number').val();
+            if (referenceNumber) {
+                alert(`Invoice held with reference number: ${referenceNumber}`);
+                $('#holdInvoiceModal').modal('hide');
+            } else {
+                alert("Please enter a reference number!");
+            }
+        });
+
+        // Multiple Payments
+        $('#multiple-btn').click(function() {
+            $('#modal-total-items').text($('#total-quantity').text());
+            $('#modal-total').text($('#total-amount').text());
+            $('#modal-total-payable').text($('#grand-total').text());
+            $('#multiplePaymentsModal').modal('show');
+        });
+
+        $('#save-payment-btn').click(function() {
+            alert("Payment saved!");
+            $('#multiplePaymentsModal').modal('hide');
+        });
+
+        $('#save-print-payment-btn').click(function() {
+            alert("Payment saved and printed!");
+            $('#multiplePaymentsModal').modal('hide');
+        });
+
+
+    // Pay All
+    $('#pay-all-btn').click(function() {
+        $('#invoice-details-body').empty();
+        let totalTax = 0;
+        let totalDiscount = 0;
+        let totalAmount = 0;
+
+        $('#invoice-items tr').each(function() {
+            const itemName = $(this).find('td').eq(0).text();
+            const price = parseFloat($(this).find('.item-price').text());
+            const quantity = parseInt($(this).find('.quantity-input').val());
+            const discount = parseFloat($(this).find('.discount-input').val()) || 0;
+            const tax = parseFloat($(this).find('.tax-input').val()) || 0;
+            const subtotal = (price * quantity) - discount + (price * quantity * tax / 100);
+
+            // Update totals
+            totalTax += (price * quantity * tax / 100);
+            totalDiscount += discount;
+            totalAmount += subtotal;
+
+            // Add row to the modal table
+            $('#invoice-details-body').append(`
+                <tr>
+                    <td>1</td>
+                    <td>${itemName}</td>
+                    <td>₹${price.toFixed(2)}</td>
+                    <td>${quantity}</td>
+                    <td>₹${subtotal.toFixed(2)}</td>
+                </tr>
+            `);
+        });
+
+        // Update the modal with calculated totals
+        $('#invoice-tax-amount').text(totalTax.toFixed(2));
+        $('#invoice-total-discount').text(totalDiscount.toFixed(2));
+        $('#invoice-total').text(totalAmount.toFixed(2));
+
+        // Show the modal
+        $('#payAllModal').modal('show');
     });
 
-    // Filter categories by search
-    categorySearch.addEventListener('input', function() {
-        const searchValue = this.value.toLowerCase();
+        // Save Invoice
+        $('#save-invoice-btn').click(function() {
+            // Here you can add the logic to save the invoice to the database
+            alert("Invoice saved!");
+            $('#payAllModal').modal('hide');
+        });
+
+        // Save and Print Invoice
+        $('#save-print-invoice-btn').click(function() {
+            // Here you can add the logic to save the invoice to the database
+            alert("Invoice saved and printed!");
+            $('#payAllModal').modal('hide');
+            
+            // Print the invoice
+            printInvoice();
+        });
+
+        // Function to print the invoice
+        function printInvoice() {
+                // Populate the print-only fields
+                document.getElementById('print-customer-name').textContent = document.getElementById('customer-name').value;
+                document.getElementById('print-customer-address').textContent = document.getElementById('customer-address').value;
+                document.getElementById('print-customer-phone').textContent = document.getElementById('customer-phone').value;
+                        const printContents = document.getElementById('payAllModal').innerHTML;
+            const originalContents = document.body.innerHTML;
+
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+            window.location.reload(); // Reload the page to restore the original content
+        }
+    });
+    </script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const categoryDisplay = document.getElementById('category-display');
+        const customDropdown = document.getElementById('custom-dropdown');
+        const categorySearch = document.getElementById('category-search');
+        const dropdownItems = document.querySelectorAll('.dropdown-item');
+        const categoryFilter = document.getElementById('category-filter');
+        const productGrid = document.getElementById('product-grid');
+        const productCards = document.querySelectorAll('.product-card');
+
+        // Toggle dropdown
+        categoryDisplay.addEventListener('click', function() {
+            const isVisible = customDropdown.style.display === 'block';
+            customDropdown.style.display = isVisible ? 'none' : 'block';
+            if (!isVisible) {
+                categorySearch.focus();
+            }
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!categoryDisplay.contains(event.target) && !customDropdown.contains(event.target)) {
+                customDropdown.style.display = 'none';
+            }
+        });
+
+        // Select category
         dropdownItems.forEach(item => {
-            const text = item.textContent.toLowerCase();
-            if (text.includes(searchValue)) {
-                item.style.display = 'block';
-            } else {
-                item.style.display = 'none';
-            }
+            item.addEventListener('click', function() {
+                // Update display
+                categoryDisplay.textContent = this.textContent;
+                categoryDisplay.appendChild(document.createElement('span')).textContent = '▼';
+                categoryDisplay.querySelector('span').style.position = 'absolute';
+                categoryDisplay.querySelector('span').style.right = '15px';
+                categoryDisplay.querySelector('span').style.top = '50%';
+                categoryDisplay.querySelector('span').style.transform = 'translateY(-50%)';
+
+                // Update actual select element
+                categoryFilter.value = this.dataset.value;
+
+                // Update styling
+                dropdownItems.forEach(i => i.style.backgroundColor = '');
+                this.style.backgroundColor = '#eee';
+
+                // Hide dropdown
+                customDropdown.style.display = 'none';
+
+                // Filter products based on selected category
+                filterProducts(this.dataset.value);
+            });
         });
+
+        // Filter categories by search
+        categorySearch.addEventListener('input', function() {
+            const searchValue = this.value.toLowerCase();
+            dropdownItems.forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchValue)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Function to filter products based on category
+        function filterProducts(categoryId) {
+            productCards.forEach(card => {
+                const cardCategory = card.getAttribute('data-category');
+                if (categoryId === "" || cardCategory === categoryId) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Initial filter to show all products
+        filterProducts("");
     });
+    </script>
 
-    // Function to filter products based on category
-    function filterProducts(categoryId) {
-        productCards.forEach(card => {
-            const cardCategory = card.getAttribute('data-category');
-            if (categoryId === "" || cardCategory === categoryId) {
-                card.style.display = 'block';
-            } else {
-                card.style.display = 'none';
-            }
-        });
-    }
-
-    // Initial filter to show all products
-    filterProducts("");
-});
-   </script>
-
-
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const customerInput = document.getElementById("customer-input");
-        const customerList = document.getElementById("customer-list");
-        const customerForm = document.getElementById("customerForm");
-    
-        // Search customer
-        customerInput.addEventListener("input", function() {
-            let query = this.value.trim();
-            if (query.length > 1) {
-                fetch(`/search-customer/?query=${query}`)
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const customerInput = document.getElementById("customer-input");
+            const customerList = document.getElementById("customer-list");
+            const customerForm = document.getElementById("customerForm");
+        
+            // Search customer
+            customerInput.addEventListener("input", function() {
+                let query = this.value.trim();
+                if (query.length > 1) {
+                    fetch(`/search-customer/?query=${query}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        customerList.innerHTML = "";
+                        data.forEach(customer => {
+                            let item = document.createElement("button");
+                            item.classList.add("list-group-item", "list-group-item-action");
+                            item.textContent = `${customer.name} (${customer.phone})`;
+                            item.onclick = () => {
+                                customerInput.value = customer.name;
+                                customerList.innerHTML = ""; // Clear dropdown
+                            };
+                            customerList.appendChild(item);
+                        });
+                    });
+                } else {
+                    customerList.innerHTML = "";
+                }
+            });
+        
+            // Submit new customer form
+            customerForm.addEventListener("submit", function(event) {
+                event.preventDefault();
+                let formData = new FormData(this);
+                
+                fetch("{% url 'frontend:create_customer' %}", {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
+                    }
+                })
                 .then(response => response.json())
                 .then(data => {
-                    customerList.innerHTML = "";
-                    data.forEach(customer => {
-                        let item = document.createElement("button");
-                        item.classList.add("list-group-item", "list-group-item-action");
-                        item.textContent = `${customer.name} (${customer.phone})`;
-                        item.onclick = () => {
-                            customerInput.value = customer.name;
-                            customerList.innerHTML = ""; // Clear dropdown
-                        };
-                        customerList.appendChild(item);
-                    });
-                });
+                    if (data.success) {
+                        alert("Customer added successfully!");
+                        customerInput.value = data.name;
+                        customerList.innerHTML = "";
+                        document.getElementById("customerModal").click(); // Close modal
+                    } else {
+                        alert("Error adding customer!");
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            });
+        });
+
+    // Save Invoice
+    function saveInvoice(shouldPrint = false) {
+        const customerName = $('#customer-name').val();
+        const customerAddress = $('#customer-address').val();
+        const customerPhone = $('#customer-phone').val();
+
+        const invoiceItems = [];
+        $('#invoice-items tr').each(function() {
+            const itemName = $(this).find('td').eq(0).text();
+            const price = parseFloat($(this).find('.item-price').text());
+            const quantity = parseInt($(this).find('.quantity-input').val());
+            const discount = parseFloat($(this).find('.discount-input').val()) || 0;
+            const tax = parseFloat($(this).find('.tax-input').val()) || 0;
+            const subtotal = (price * quantity) - discount + (price * quantity * tax / 100);
+
+            invoiceItems.push({
+                itemId: $(this).data('id'), // Pass item ID
+                itemName: itemName,
+                price: price,
+                quantity: quantity,
+                discount: discount,
+                tax: tax,
+                subtotal: subtotal
+            });
+        });
+
+        const totalAmount = parseFloat($('#grand-total').text());
+
+        const saleData = {
+            customerName: customerName,
+            customerAddress: customerAddress,
+            customerPhone: customerPhone,
+            items: invoiceItems,
+            totalAmount: totalAmount
+        };
+
+        // Send data to the backend
+        fetch("{% url 'frontend:save_sale' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify(saleData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert("Sale saved successfully!");
+                if (shouldPrint) {
+                    printInvoice(); // Print after saving
+                }
+                window.location.href = "{% url 'frontend:sale_list' %}"; // Redirect to sale list page
             } else {
-                customerList.innerHTML = "";
+                alert("Error saving sale!");
             }
-        });
-    
-        // Submit new customer form
-        customerForm.addEventListener("submit", function(event) {
-            event.preventDefault();
-            let formData = new FormData(this);
-            
-            fetch("{% url 'frontend:create_customer' %}", {
-                method: "POST",
-                body: formData,
-                headers: {
-                    "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert("Customer added successfully!");
-                    customerInput.value = data.name;
-                    customerList.innerHTML = "";
-                    document.getElementById("customerModal").click(); // Close modal
-                } else {
-                    alert("Error adding customer!");
-                }
-            })
-            .catch(error => console.error("Error:", error));
-        });
+        })
+        .catch(error => console.error("Error:", error));
+    }
+
+    // Save Invoice Button
+    $('#save-invoice-btn').click(function() {
+        saveInvoice(false); // Save without printing
     });
 
-// Save Invoice
-function saveInvoice(shouldPrint = false) {
-    const customerName = $('#customer-name').val();
-    const customerAddress = $('#customer-address').val();
-    const customerPhone = $('#customer-phone').val();
-
-    const invoiceItems = [];
-    $('#invoice-items tr').each(function() {
-        const itemName = $(this).find('td').eq(0).text();
-        const price = parseFloat($(this).find('.item-price').text());
-        const quantity = parseInt($(this).find('.quantity-input').val());
-        const discount = parseFloat($(this).find('.discount-input').val()) || 0;
-        const tax = parseFloat($(this).find('.tax-input').val()) || 0;
-        const subtotal = (price * quantity) - discount + (price * quantity * tax / 100);
-
-        invoiceItems.push({
-            itemId: $(this).data('id'), // Pass item ID
-            itemName: itemName,
-            price: price,
-            quantity: quantity,
-            discount: discount,
-            tax: tax,
-            subtotal: subtotal
-        });
+    // Save & Print Invoice Button
+    $('#save-print-invoice-btn').click(function() {
+        saveInvoice(true); // Save and print
     });
 
-    const totalAmount = parseFloat($('#grand-total').text());
+    function printInvoice() {
+        // Clone the modal content to avoid modifying the original
+        const printContents = document.getElementById('payAllModal').cloneNode(true);
 
-    const saleData = {
-        customerName: customerName,
-        customerAddress: customerAddress,
-        customerPhone: customerPhone,
-        items: invoiceItems,
-        totalAmount: totalAmount
-    };
+        // Remove unnecessary elements
+        const elementsToRemove = printContents.querySelectorAll('.modal-footer, .btn-close, .modal-header');
+        elementsToRemove.forEach(el => el.remove());
 
-    // Send data to the backend
-    fetch("{% url 'frontend:save_sale' %}", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": "{{ csrf_token }}"
-        },
-        body: JSON.stringify(saleData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert("Sale saved successfully!");
-            if (shouldPrint) {
-                printInvoice(); // Print after saving
-            }
-            window.location.href = "{% url 'frontend:sale_list' %}"; // Redirect to sale list page
-        } else {
-            alert("Error saving sale!");
+        // Ensure customer details are visible
+        const customerDetails = printContents.querySelector('.customer-details');
+        if (customerDetails) {
+            customerDetails.style.display = 'block';
         }
-    })
-    .catch(error => console.error("Error:", error));
-}
 
-// Save Invoice Button
-$('#save-invoice-btn').click(function() {
-    saveInvoice(false); // Save without printing
-});
+        // Populate customer details in the print view
+        const customerName = $('#customer-name').val();
+        const customerAddress = $('#customer-address').val();
+        const customerPhone = $('#customer-phone').val();
 
-// Save & Print Invoice Button
-$('#save-print-invoice-btn').click(function() {
-    saveInvoice(true); // Save and print
-});
+        if (customerName) {
+            printContents.querySelector('#customer-name').value = customerName;
+        }
+        if (customerAddress) {
+            printContents.querySelector('#customer-address').value = customerAddress;
+        }
+        if (customerPhone) {
+            printContents.querySelector('#customer-phone').value = customerPhone;
+        }
 
-function printInvoice() {
-    // Clone the modal content to avoid modifying the original
-    const printContents = document.getElementById('payAllModal').cloneNode(true);
+        // Center align the company details and invoice header
+        const companyDetails = printContents.querySelector('.text-center');
+        if (companyDetails) {
+            companyDetails.style.textAlign = 'center';
+        }
 
-    // Remove unnecessary elements
-    const elementsToRemove = printContents.querySelectorAll('.modal-footer, .btn-close, .modal-header');
-    elementsToRemove.forEach(el => el.remove());
+        // Create a new window for printing
+        const printWindow = window.open('', '_blank');
+        printWindow.document.open();
+        printWindow.document.write(`
+            <html>
+                <head>
+                
+                    <style>
+                        /* Hide unnecessary elements when printing */
+                        .modal-footer, .btn-close, .modal-header {
+                            display: none !important;
+                        }
+                        /* Ensure customer details are visible */
+                        .customer-details {
+                            display: block !important;
+                        }
+                        /* Center align text */
+                        .text-center {
+                            text-align: center !important;
+                        }
+                        /* Add any additional print styles here */
+                        body {
+                            font-family: Arial, sans-serif;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                        }
+                        th, td {
+                            border: 1px solid #000;
+                            padding: 8px;
+                            text-align: left;
+                        }
+                        th {
+                            background-color: #f2f2f2;
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${printContents.innerHTML}
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
 
-    // Ensure customer details are visible
-    const customerDetails = printContents.querySelector('.customer-details');
-    if (customerDetails) {
-        customerDetails.style.display = 'block';
+        // Print the invoice
+        printWindow.print();
+        printWindow.close();
     }
 
-    // Populate customer details in the print view
-    const customerName = $('#customer-name').val();
-    const customerAddress = $('#customer-address').val();
-    const customerPhone = $('#customer-phone').val();
 
-    if (customerName) {
-        printContents.querySelector('#customer-name').value = customerName;
-    }
-    if (customerAddress) {
-        printContents.querySelector('#customer-address').value = customerAddress;
-    }
-    if (customerPhone) {
-        printContents.querySelector('#customer-phone').value = customerPhone;
-    }
-
-    // Center align the company details and invoice header
-    const companyDetails = printContents.querySelector('.text-center');
-    if (companyDetails) {
-        companyDetails.style.textAlign = 'center';
-    }
-
-    // Create a new window for printing
-    const printWindow = window.open('', '_blank');
-    printWindow.document.open();
-    printWindow.document.write(`
-        <html>
-            <head>
-               
-                <style>
-                    /* Hide unnecessary elements when printing */
-                    .modal-footer, .btn-close, .modal-header {
-                        display: none !important;
-                    }
-                    /* Ensure customer details are visible */
-                    .customer-details {
-                        display: block !important;
-                    }
-                    /* Center align text */
-                    .text-center {
-                        text-align: center !important;
-                    }
-                    /* Add any additional print styles here */
-                    body {
-                        font-family: Arial, sans-serif;
-                    }
-                    table {
-                        width: 100%;
-                        border-collapse: collapse;
-                    }
-                    th, td {
-                        border: 1px solid #000;
-                        padding: 8px;
-                        text-align: left;
-                    }
-                    th {
-                        background-color: #f2f2f2;
-                    }
-                </style>
-            </head>
-            <body>
-                ${printContents.innerHTML}
-            </body>
-        </html>
-    `);
-    printWindow.document.close();
-
-    // Print the invoice
-    printWindow.print();
-    printWindow.close();
-}
-
-
-</script>
-
+    </script>
    
 {% endblock %}
 {% endblock %}

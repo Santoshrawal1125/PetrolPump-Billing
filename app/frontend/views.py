@@ -15,7 +15,7 @@ from django.contrib.auth import get_user_model
 from django.views import View
 from django.utils.text import slugify
 from django.utils.timezone import make_naive
-
+from datetime import datetime, timedelta
 
 #local import
 from django.shortcuts import render, redirect, get_object_or_404
@@ -519,23 +519,46 @@ from .models import Sale
 from datetime import datetime
 
 
-#SALE DETAIL
-def sale_list(request):
-    # Get the date from the request
-    date_filter = request.GET.get('date')
+from datetime import datetime
+from django.utils.timezone import make_aware
 
-    # Filter sales by date if a date is provided
-    if date_filter:
+def sale_list(request):
+    # Get the date range from the request
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    # Start with all sales
+    sales_list = Sale.objects.all().order_by('-created_at')
+
+    # Filter by date range if provided
+    if start_date and end_date:
         try:
-            # Convert the date string to a datetime object
-            filter_date = datetime.strptime(date_filter, '%Y-%m-%d').date()
-            sales_list = Sale.objects.filter(created_at__date=filter_date).order_by('-created_at')
+            # Convert the date strings to datetime objects
+            start_date = make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
+            end_date = make_aware(datetime.strptime(end_date, '%Y-%m-%d'))
+            
+            # Include the entire end date by adding 1 day
+            end_date = end_date + timedelta(days=1)
+            
+            # Filter sales between the dates
+            sales_list = sales_list.filter(created_at__range=(start_date, end_date))
         except ValueError:
-            # Handle invalid date format
-            sales_list = Sale.objects.all().order_by('-created_at')
-    else:
-        # If no date is provided, show all sales
-        sales_list = Sale.objects.all().order_by('-created_at')
+            # Handle invalid date format - will return all sales
+            pass
+    elif start_date:
+        try:
+            # Filter sales after start date
+            start_date = make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
+            sales_list = sales_list.filter(created_at__gte=start_date)
+        except ValueError:
+            pass
+    elif end_date:
+        try:
+            # Filter sales before end date (including the entire end date)
+            end_date = make_aware(datetime.strptime(end_date, '%Y-%m-%d')) + timedelta(days=1)
+            sales_list = sales_list.filter(created_at__lte=end_date)
+        except ValueError:
+            pass
 
     # Paginate the results
     paginator = Paginator(sales_list, 10)  # Show 10 sales per page

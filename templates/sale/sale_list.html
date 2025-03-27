@@ -28,19 +28,23 @@
                     
                                     
 
-                    <!-- Date Filter -->
-                    <form method="GET" action="{% url 'frontend:sale_list' %}" class="mb-4">
-                        <div class="row">
-                            <div class="col-md-4">
-                              
-                                <input type="date" class="form-control" id="date-filter" name="date" value="{{ request.GET.date }}">
+                        <!-- Date Filter -->
+                        <form method="GET" action="{% url 'frontend:sale_list' %}" class="mb-4">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label for="start-date" class="form-label">Start Date</label>
+                                    <input type="date" class="form-control" id="start-date" name="start_date" value="{{ request.GET.start_date }}">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="end-date" class="form-label">End Date</label>
+                                    <input type="date" class="form-control" id="end-date" name="end_date" value="{{ request.GET.end_date }}">
+                                </div>
+                                <div class="col-md-2 align-self-end">
+                                    <button type="submit" class="btn btn-primary">Search</button>
+                                    <a href="{% url 'frontend:sale_list' %}" class="btn btn-secondary">Clear</a>
+                                </div>
                             </div>
-                            <div class="col-md-2 align-self-end">
-                                <button type="submit" class="btn btn-primary">Search</button>
-                                <a href="{% url 'frontend:sale_list' %}" class="btn btn-secondary">Clear</a>
-                            </div>
-                        </div>
-                    </form>
+                        </form>
 
                     <!-- Responsive Table -->
                     <div class="table-responsive">
