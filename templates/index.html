@@ -22,6 +22,7 @@
                         
                     </div>
                     <!-- Column -->
+                    {% if user.is_superuser %}
                     <div class="col-md-6 col-lg-4 col-xlg-3">
                         <a href="{% url 'frontend:customers_list' %}" style="text-decoration: none;">
                         <div class="card card-hover">
@@ -33,6 +34,8 @@
                         </div>
                         </a>
                     </div>
+
+
                     <!-- Purchase Staff -->
                     <!-- <div class="col-md-6 col-lg-2 col-xlg-3">
                         <div class="card card-hover">
@@ -76,6 +79,7 @@
                         </div>
                     </a>
                     </div>
+                    {% endif %}
 
                     <!-- Duplicate Suppliers Section (Fixed to Suppliers) -->
                     <div class="col-md-6 col-lg-2 col-xlg-3">
@@ -89,6 +93,7 @@
                     </a>
                     </div>
 
+                    {% if user.is_superuser %}
                     <!-- Expense Category -->
                     <div class="col-md-6 col-lg-2 col-xlg-3">
                         <a href="{% url 'frontend:expense_category_list' %}" style="text-decoration: none;">
@@ -101,6 +106,7 @@
                     </a>
                     </div>
 
+
                     <!-- Items -->
                     <div class="col-md-6 col-lg-2 col-xlg-3">
                         <a href="{% url 'frontend:item_list' %}" style="text-decoration: none;">
@@ -112,7 +118,7 @@
                         </div>
                     </a>
                     </div>
-
+                    {% endif %}
                     <!-- Purchases -->
                     <div class="col-md-6 col-lg-2 col-xlg-3">
                         <a href="{% url 'frontend:sale_list' %}" style="text-decoration: none;">

@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from app.account.models import User
 from phonenumber_field.modelfields import PhoneNumberField
 
+
 class OrganizationSetting(models.Model):
     company_name = models.CharField(max_length=255, unique=True)
     logo = models.ImageField(upload_to='organization_logos/', blank=False, null=False)
@@ -13,12 +14,20 @@ class OrganizationSetting(models.Model):
     location = models.CharField(max_length=255, blank=True, null=True)
     pan_vat = models.CharField(max_length=100, blank=True, null=True)
     email = models.EmailField(max_length=255, blank=True, null=True)
+    TRN = models.IntegerField(blank=True, null=True)
+    TID = models.CharField(max_length=60, blank=True, null=True)
 
     def __str__(self):
         return self.company_name
 
+
 class Invoice(models.Model):
-    invoice_number = models.CharField(max_length=20, unique=True, editable=False, blank=True)
+    invoice_number = models.CharField(max_length=30, unique=True, editable=False, blank=True)
+    receipt_number = models.CharField(max_length=20, blank=True, null=True)
+    pump_number = models.IntegerField(blank=True, null=True)
+    vehicle_no = models.CharField(max_length=20, blank=True, null=True)
+    rrn = models.IntegerField(blank=True, null=True)
+    employee_id = models.ForeignKey(User, related_name='empolyee_id', on_delete=models.CASCADE, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
@@ -32,6 +41,7 @@ class Invoice(models.Model):
             self.invoice_number = new_number
         super().save(*args, **kwargs)
 
+
 class Customer(models.Model):
     name = models.CharField(max_length=255)
     phone_number = PhoneNumberField(region='NP', null=True)
@@ -44,6 +54,7 @@ class Customer(models.Model):
     def __str__(self):
         return self.name
 
+
 class ExpenseCategory(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
@@ -53,6 +64,7 @@ class ExpenseCategory(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Expense(models.Model):
     category = models.ForeignKey('ExpenseCategory', on_delete=models.SET_NULL, null=True)
@@ -67,6 +79,7 @@ class Expense(models.Model):
     def __str__(self):
         return f"Expense {self.reference_no} (Amount: {self.amount})"
 
+
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True, null=True)
@@ -76,6 +89,7 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Item(models.Model):
     created_by = models.ForeignKey(User, related_name='item_created', on_delete=models.CASCADE, null=True)
@@ -88,7 +102,8 @@ class Item(models.Model):
     image = models.ImageField(upload_to='item_images/', blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     cost_price = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
-    discount_type = models.CharField(max_length=50, choices=[('percentage', 'Percentage'), ('fixed', 'Fixed')], blank=True, null=True)
+    discount_type = models.CharField(max_length=50, choices=[('percentage', 'Percentage'), ('fixed', 'Fixed')],
+                                     blank=True, null=True)
     discount = models.DecimalField(max_digits=5, decimal_places=2, default=0.0, blank=True, null=True)
     tax_percentage = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     created_at = models.DateTimeField(_('created at'), auto_now_add=True, null=True)
@@ -96,6 +111,7 @@ class Item(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Purchase(models.Model):
     STATUS_CHOICES = [
@@ -127,6 +143,7 @@ class Purchase(models.Model):
     def __str__(self):
         return f"Purchase {self.reference_no} (Supplier: {self.supplier.name})"
 
+
 class PurchaseItem(models.Model):
     purchase = models.ForeignKey('Purchase', on_delete=models.CASCADE, related_name='items')
     item = models.ForeignKey('Item', on_delete=models.SET_NULL, null=True)
@@ -154,6 +171,7 @@ class PurchaseItem(models.Model):
     def __str__(self):
         return f"Item {self.item.name} (Quantity: {self.quantity})"
 
+
 class Supplier(models.Model):
     name = models.CharField(max_length=255)
     phone_number = PhoneNumberField(region='NP', null=True)
@@ -174,7 +192,7 @@ class Supplier(models.Model):
 
     def __str__(self):
         return self.name
-    
+
 
 class Sale(models.Model):
     created_by = models.ForeignKey(
@@ -197,7 +215,7 @@ class Sale(models.Model):
 class SaleItem(models.Model):
     sale = models.ForeignKey(Sale, on_delete=models.CASCADE)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
-    item_name = models.CharField(max_length=255, default="Unknown Item")  
+    item_name = models.CharField(max_length=255, default="Unknown Item")
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     quantity = models.PositiveIntegerField(default=1)
     discount = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)

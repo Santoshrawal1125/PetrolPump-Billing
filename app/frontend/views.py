@@ -1,7 +1,7 @@
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.forms import ValidationError
-from django.shortcuts import  render
+from django.shortcuts import render
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import authenticate, login as auth_login, logout as auth_logout
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -11,14 +11,14 @@ from django.contrib.auth.forms import PasswordChangeForm
 import csv
 import json
 import openpyxl
-from openpyxl import Workbook 
+from openpyxl import Workbook
 from django.contrib.auth import get_user_model
 from django.views import View
 from django.utils.text import slugify
 from django.utils.timezone import make_naive
 from datetime import datetime, timedelta
 
-#local import
+# local import
 from django.shortcuts import render, redirect, get_object_or_404
 from app.frontend.models import Customer
 from app.frontend.forms import CustomerForm, ItemForm
@@ -31,40 +31,36 @@ from app.frontend.forms import PurchaseForm, PurchaseItemForm
 from app.frontend.models import Category
 from app.frontend.forms import CategoryForm
 from app.frontend.models import Expense, ExpenseCategory
-from app.frontend.forms import ExpenseForm, ExpenseCategoryForm,OrganizationSettingForm
+from app.frontend.forms import ExpenseForm, ExpenseCategoryForm, OrganizationSettingForm
 from app.frontend.models import OrganizationSetting, Invoice
-from app.frontend.models import Sale,SaleItem
+from app.frontend.models import Sale, SaleItem
 from django.core.paginator import Paginator
 from app.account.forms import StaffCreationForm
-
-
 
 
 def index(request):
     return render(request, 'backend/index.html')
 
 
-#For User/admin application like login, logout and change password
+# For User/admin application like login, logout and change password
 def login_view(request):
     try:
         if request.user.is_authenticated:
-            return redirect('frontend:index')  
+            return redirect('frontend:index')
 
         if request.method == "POST":
-            email = request.POST.get('email') 
+            email = request.POST.get('email')
             password = request.POST.get('password')
 
-           
-            user_obj = authenticate(request, username=email, password=password) 
+            user_obj = authenticate(request, username=email, password=password)
 
             if user_obj is None:
                 messages.warning(request, "Invalid email or password.")
-                return redirect('frontend:login')  
+                return redirect('frontend:login')
 
-            
             if user_obj.is_superuser or user_obj.is_staff or user_obj.is_editor:
                 auth_login(request, user_obj)
-                return redirect('frontend:index')  
+                return redirect('frontend:index')
 
             messages.warning(request, "Invalid credentials or insufficient permissions.")
             return redirect('frontend:login')
@@ -72,7 +68,7 @@ def login_view(request):
         return render(request, 'backend/login.html')
 
     except Exception as e:
-        print(f"Login error: {e}") 
+        print(f"Login error: {e}")
         messages.warning(request, "Something went wrong. Please try again.")
         return redirect('frontend:login')
 
@@ -83,6 +79,7 @@ def userlogout(request):
     messages.info(request, "Logged out successfully.")
     return redirect('frontend:login')
 
+
 @login_required
 @user_passes_test(lambda u: u.is_staff or u.is_superuser)
 def change_password(request):
@@ -91,44 +88,43 @@ def change_password(request):
         if form.is_valid():
             user = form.save()
             messages.success(request, 'Your password was successfully updated!')
-            return redirect('frontend:change_password') 
+            return redirect('frontend:change_password')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
         form = PasswordChangeForm(request.user)
-    
+
     return render(request, 'backend/change_password.html', {'form': form})
 
 
 def index(request):
-    total_customers = Customer.objects.count() 
-    total_items = Item.objects.count() 
-    total_sale = Sale.objects.count() 
-    total_category = Category.objects.count() 
-    total_expenses = Expense.objects.count() 
-    total_expenses_category= ExpenseCategory.objects.count() 
-    return render(request, 'index.html',{'total_customers':total_customers,
-    'total_items':total_items,
-    'total_sale':total_sale,
-    'total_category':total_category,
-    'total_expenses':total_expenses,
-    'total_expenses_category':total_expenses_category})
+    total_customers = Customer.objects.count()
+    total_items = Item.objects.count()
+    total_sale = Sale.objects.count()
+    total_category = Category.objects.count()
+    total_expenses = Expense.objects.count()
+    total_expenses_category = ExpenseCategory.objects.count()
+    return render(request, 'index.html', {'total_customers': total_customers,
+                                          'total_items': total_items,
+                                          'total_sale': total_sale,
+                                          'total_category': total_category,
+                                          'total_expenses': total_expenses,
+                                          'total_expenses_category': total_expenses_category})
 
 
 # Customer Details
 def customer_list(request):
     customers = Customer.objects.all()
-    
-    paginator = Paginator(customers, 15)  
+
+    paginator = Paginator(customers, 15)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
     return render(request, 'customer/customer_list.html', {
         'page_obj': page_obj,
-        'customers': page_obj,  
+        'customers': page_obj,
         'is_paginated': page_obj.has_other_pages(),
     })
-
 
 
 @login_required
@@ -151,8 +147,7 @@ def delete_customer(request, pk):
     customer = get_object_or_404(Customer, pk=pk)
     customer.delete()
     messages.success(request, "Customer deleted successfully!")
-    return redirect('frontend:customers_list')  
-
+    return redirect('frontend:customers_list')
 
 
 @login_required
@@ -169,9 +164,6 @@ def edit_customer(request, pk):
         form = CustomerForm(instance=customer)
 
     return render(request, 'customer/edit_customer.html', {'form': form, 'customer': customer})
-
-
-
 
 
 def export_customers_excel(request):
@@ -204,12 +196,12 @@ def export_customers_excel(request):
     return response
 
 
-
 # Purchases Details
 
 def purchase_list(request):
     purchases = Purchase.objects.all()
     return render(request, 'purchase/purchase_list.html', {'purchases': purchases})
+
 
 def add_purchase(request):
     if request.method == 'POST':
@@ -224,9 +216,10 @@ def add_purchase(request):
             messages.error(request, 'Error adding purchase. Please check the details.')
     else:
         form = PurchaseForm()
-    
+
     suppliers = Supplier.objects.all()
     return render(request, 'purchase/add_purchase.html', {'form': form, 'suppliers': suppliers})
+
 
 def edit_purchase(request, pk):
     purchase = get_object_or_404(Purchase, pk=pk)
@@ -240,8 +233,9 @@ def edit_purchase(request, pk):
             messages.error(request, 'Error updating purchase.')
     else:
         form = PurchaseForm(instance=purchase)
-    
+
     return render(request, 'purchase/edit_purchase.html', {'form': form, 'purchase': purchase})
+
 
 def delete_purchase(request, pk):
     purchase = get_object_or_404(Purchase, pk=pk)
@@ -249,13 +243,11 @@ def delete_purchase(request, pk):
         purchase.delete()
         messages.success(request, 'Purchase deleted successfully!')
         return redirect('purchase_list')
-    
+
     return render(request, 'purchases/delete_purchase.html', {'purchase': purchase})
 
 
-
-
-#Items Details
+# Items Details
 
 def item_list(request):
     items_list = Item.objects.all()
@@ -301,7 +293,6 @@ def delete_item(request, item_id):
     return redirect('frontend:item_list')
 
 
-
 # Category  Details
 def category_list(request):
     categories = Category.objects.all().order_by('-id')
@@ -310,6 +301,7 @@ def category_list(request):
     page_obj = paginator.get_page(page_number)
 
     return render(request, 'category/category_list.html', {'page_obj': page_obj})
+
 
 def category_create(request):
     if request.method == "POST":
@@ -320,8 +312,9 @@ def category_create(request):
             return redirect('frontend:category_list')
     else:
         form = CategoryForm()
-    
+
     return render(request, 'category/category_form.html', {'form': form})
+
 
 def category_update(request, pk):
     category = get_object_or_404(Category, pk=pk)
@@ -333,8 +326,9 @@ def category_update(request, pk):
             return redirect('frontend:category_list')
     else:
         form = CategoryForm(instance=category)
-    
+
     return render(request, 'category/category_form.html', {'form': form, 'category': category})
+
 
 def category_delete(request, pk):
     category = get_object_or_404(Category, pk=pk)
@@ -343,13 +337,12 @@ def category_delete(request, pk):
     return redirect('frontend:category_list')
 
 
-
 # Pos Detail
 def pos_page(request):
     categories = Category.objects.all()
     brands = Item.objects.values_list('brand', flat=True).distinct()
     items = Item.objects.all()
-    invoice = Invoice.objects.create() 
+    invoice = Invoice.objects.create()
     context = {
         'categories': categories,
         'brands': brands,
@@ -379,12 +372,11 @@ def generate_item_code(request):
     return JsonResponse({'item_code': item_code})
 
 
-
 # Expenses Details
 def expense_list(request):
     expenses = Expense.objects.all().order_by('-date')
-    print(expenses)  
-    paginator = Paginator(expenses, 10)  
+    print(expenses)
+    paginator = Paginator(expenses, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     return render(request, 'expenses/expense_list.html', {'page_obj': page_obj})
@@ -393,7 +385,7 @@ def expense_list(request):
 # Create a new expense
 def expense_create(request):
     if request.method == "POST":
-        form = ExpenseForm(request.POST, request.FILES)  
+        form = ExpenseForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
             messages.success(request, "Expense added successfully!")
@@ -401,6 +393,7 @@ def expense_create(request):
     else:
         form = ExpenseForm()
     return render(request, 'expenses/expense_form.html', {'form': form})
+
 
 # Update an existing expense
 def expense_update(request, pk):
@@ -415,6 +408,7 @@ def expense_update(request, pk):
         form = ExpenseForm(instance=expense)
     return render(request, 'expenses/expense_form.html', {'form': form, 'expense': expense})
 
+
 # Delete an expense
 def expense_delete(request, pk):
     expense = get_object_or_404(Expense, pk=pk)
@@ -423,13 +417,12 @@ def expense_delete(request, pk):
     return redirect('frontend:expense_list')
 
 
-
-
-# Expense Category 
+# Expense Category
 @login_required
 def expense_category_list(request):
     categories = ExpenseCategory.objects.all().order_by('-created_at')
     return render(request, 'expenses/category_list.html', {'categories': categories})
+
 
 @login_required
 def expense_category_add(request):
@@ -445,6 +438,7 @@ def expense_category_add(request):
         form = ExpenseCategoryForm()
     return render(request, 'expenses/category_form.html', {'form': form, 'title': 'Add Expense Category'})
 
+
 @login_required
 def expense_category_edit(request, pk):
     category = get_object_or_404(ExpenseCategory, pk=pk)
@@ -457,6 +451,7 @@ def expense_category_edit(request, pk):
     else:
         form = ExpenseCategoryForm(instance=category)
     return render(request, 'expenses/category_form.html', {'form': form, 'title': 'Edit Expense Category'})
+
 
 @login_required
 def expense_category_delete(request, pk):
@@ -474,7 +469,6 @@ def search_customer(request):
     customers = Customer.objects.filter(name__icontains=query)[:10]  # Limit results
     data = [{"id": c.id, "name": c.name, "phone": str(c.phone_number)} for c in customers]
     return JsonResponse(data, safe=False)
-
 
 
 @login_required
@@ -509,19 +503,15 @@ def organization_setting_view(request):
     return render(request, 'organization_setting.html', {'form': form})
 
 
-
-
-
-
 from django.shortcuts import render
 from django.core.paginator import Paginator
 from django.db.models import Q
 from .models import Sale
 from datetime import datetime
 
-
 from datetime import datetime
 from django.utils.timezone import make_aware
+
 
 def sale_list(request):
     # Get the date range from the request
@@ -537,10 +527,10 @@ def sale_list(request):
             # Convert the date strings to datetime objects
             start_date = make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
             end_date = make_aware(datetime.strptime(end_date, '%Y-%m-%d'))
-            
+
             # Include the entire end date by adding 1 day
             end_date = end_date + timedelta(days=1)
-            
+
             # Filter sales between the dates
             sales_list = sales_list.filter(created_at__range=(start_date, end_date))
         except ValueError:
@@ -571,6 +561,7 @@ def sale_list(request):
         'page_obj': page_obj,
         'is_paginated': page_obj.has_other_pages(),
     })
+
 
 def sale_detail(request, sale_id):
     sale = get_object_or_404(Sale, id=sale_id)
@@ -625,10 +616,8 @@ def save_sale(request):
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 
-
-
-
 User = get_user_model()
+
 
 class StaffListView(View):
     template_name = 'backend/staff_list.html'
@@ -638,13 +627,12 @@ class StaffListView(View):
         return render(request, self.template_name, {'staff_members': staff_members})
 
 
-
-    
 def delete_staff(request, pk):
     staff_member = get_object_or_404(User, pk=pk)
     staff_member.delete()
     messages.success(request, "Staff member deleted successfully!")
-    return redirect('frontend:staff_list')  
+    return redirect('frontend:staff_list')
+
 
 class StaffCreateView(View):
     template_name = 'backend/create_staff.html'
@@ -674,7 +662,7 @@ class StaffCreateView(View):
             messages.success(request, "Staff member created successfully!")
             return redirect('frontend:staff_list')
 
-        return render(request, self.template_name, {'form': form}) 
+        return render(request, self.template_name, {'form': form})
 
 
 def export_sales_excel(request):
@@ -692,10 +680,10 @@ def export_sales_excel(request):
         created_at_naive = make_naive(sale.created_at)
 
         sheet.append([
-            sale.id, 
-            sale.customer_name, 
-            sale.customer_phone, 
-            sale.total_amount, 
+            sale.id,
+            sale.customer_name,
+            sale.customer_phone,
+            sale.total_amount,
             created_at_naive  # Ensure this is a naive datetime
         ])
 
@@ -736,20 +724,20 @@ def export_items_excel(request):
 
 def customer_detail_view(request, pk):
     customer = get_object_or_404(Customer, pk=pk)
-    
+
     # Search sales by both name and phone for better matching
     sales = Sale.objects.filter(
         Q(customer_name__iexact=customer.name) |
         Q(customer_phone__iexact=customer.phone_number)
     ).prefetch_related('saleitem_set').distinct()
-    
+
     total_purchases = sales.aggregate(total=Sum('total_amount'))['total'] or 0
-    invoice = Invoice.objects.create() 
-    
+    invoice = Invoice.objects.create()
+
     context = {
         'customer': customer,
         'sales': sales,
         'total_purchases': total_purchases,
-        'invoice':invoice
+        'invoice': invoice
     }
     return render(request, 'customer/customer_detail.html', context)
