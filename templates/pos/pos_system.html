@@ -2,58 +2,70 @@
 {% load static %}
 {% block content %}
 <style>
-@media print {
-    /* Hide modal UI parts */
-    .modal-footer,
-    .btn-close,
-    .modal-header,
-    .customer-input-fields {
-        display: none !important;
-    }
-
-    /* Show printable customer details */
-    .customer-details-print {
-        display: block !important;
-    }
-
+  /* Receipt printer-friendly styles */
+  @media print {
     body {
-        width: 58mm; /* Change to 80mm if needed */
-        margin: 0;
-        padding: 0;
-        font-family: 'Arial', sans-serif;
-        font-size: 12px;
+      width: 55mm;
+      font-size: 11px;
+      font-family: monospace;
     }
-
+    .modal-body {
+      padding: 0;
+      margin: 0;
+      width: 100%;
+    }
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .table th, .table td {
+      padding: 2px 4px;
+      text-align: left;
+    }
+    hr {
+      border: none;
+      border-top: 1px dashed #000;
+    }
+    img {
+      max-height: 50px;
+    }
     .text-center {
-        text-align: center !important;
+      text-align: center;
     }
+  }
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
+  /* On-screen styling for preview */
+  .modal-body {
+    font-family: monospace;
+    max-width: 300px;
+    margin: auto;
+    font-size: 12px;
+  }
 
-    th, td {
-        font-size: 12px;
-        padding: 4px 0;
-        text-align: left;
-        border: none; /* Optional: remove borders for cleaner receipt */
-    }
+  .table th, .table td {
+    font-size: 11px;
+  }
 
-    th {
-        font-weight: bold;
-    }
+  .text-center {
+    text-align: center;
+  }
 
-    /* Optional: remove background color for thermal printer */
-    th, td {
-        background-color: transparent !important;
-    }
-}
+  .fake-qr {
+    display: block;
+    margin: 10px auto;
+    width: 80px;
+    height: 80px;
+    background: url('https://api.qrserver.com/v1/create-qr-code/?data=Placeholder&size=80x80') no-repeat center center;
+    background-size: contain;
+  }
 
-/* Hide print-only content on screen */
-.customer-details-print {
-    display: none;
-}
+  h4, h5, h7 {
+    margin: 2px 0;
+  }
+
+  p {
+    margin: 2px 0;
+  }
 </style>
 
 
@@ -322,69 +334,53 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="text-center">
-                        <img src="{{ organization.logo.url }}" alt="Organization Logo" height="100">
-                        <h4> TAX INVOICE </h4>
-                        <h7>TRN: 100069993200003 </h7>
-                        <p>Address: {{ organization.location }}</p>
-                        <p>PAN Number / VAT: {{ organization.pan_vat }}</p>
-                        <p>Phone: {{ organization.phone }}, {{ organization.telephone }}</p>
-                        <hr>
-                        <h5>-----------------Invoice-----------------</h5>
-                        <p>Invoice #{{ invoice.invoice_number }}</p>
+                  <div class="text-center">
+                    <img src="{{ organization.logo.url }}" alt="Organization Logo" height="100">
+                    <h4> TAX INVOICE </h4>
+                    <h7>TRN: 100069993200003</h7>
+                    <p>Address: {{ organization.location }}</p>
+                     ---------------------------------------
+                  </div>
 
-                        <!-- Customer Details Input Fields -->
-                        <div class="customer-details mb-3 p-2 border rounded">
-                            <div class="row g-3">
-                                <div class="col-md-4 col-12">
-                                    <label for="customer-name" class="small fw-bold">Name:</label>
-                                    <input type="text" class="form-control form-control-sm" id="customer-name" placeholder="Enter name">
-                                </div>
-                                <div class="col-md-4 col-12">
-                                    <label for="customer-address" class="small fw-bold">Address:</label>
-                                    <input type="text" class="form-control form-control-sm" id="customer-address" placeholder="Enter address">
-                                </div>
-                                <div class="col-md-4 col-12">
-                                    <label for="customer-phone" class="small fw-bold">Phone:</label>
-                                    <input type="text" class="form-control form-control-sm" id="customer-phone" placeholder="Enter phone">
-                                </div>
-                            </div>
-                        </div>
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Item</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                        <th>Subtotal-AED</th>
 
+                      </tr>
+                    </thead>
+                    <tbody id="invoice-details-body">
+                      <tr>
+                        <td>Gas Oil (1)</td>
+                        <td>2.63</td>
+                        <td>32.32</td>
+                        <td>85.00</td>
+                      </tr>
+                    </tbody>
+                  </table>
 
+                  <div class="row text-center">
+                    <div class="col-md-6 me-auto">
+                      <p>Tax Amount: ₹<sspan id="invoice-tax-amount">4.05</sspan></p>
+                      <p>Discount: ₹<span id="invoice-total-discount">0.00</span></p>
+                      <p><strong>Grand Total: ₹<span id="invoice-total">85.00</span></strong></p>
+                      <p>Date: <sspan id="date">2025-11-25</sspan></p>
+                      <p>Receipt No: <sspan id="receipt">163858</sspan></p>
+                      <p>Invoice No: <sspan id="invoice">2024041409270163598</sspan></p>
+                      <p>Pump No: <sspan id="pump">17</sspan></p>
+                      <p>Vehicle No: <span id="vehicle">4008</span></p>
+                      <p>RRN : <sspan id="rrn">510410163858</sspan></p>
+                      <p>Attendant ID : <sspan id="attendant">762004910000295735</sspan></p>
+                      <p>Employee ID : <sspan id="employee">191133</sspan></p>
+                      <p>TID: <sspan id="tid">670-V3.17 e 3 SN P257233T20060</sspan></p>
                     </div>
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th>Price</th>
-                                <th>Quantity</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
-                        <tbody id="invoice-details-body"></tbody>
-                    </table>
-                    <div class="row text-center ">
-                        <div class="col-md-6 me-auto ">
-                            <p>Tax Amount: ₹<sspan id="invoice-tax-amount">0.00</sspan></p>
-                            <p>Discount: ₹<span id="invoice-total-discount">0.00</span></p>
-                            <p><strong>Grand Total: ₹<span id="invoice-total">0.00</span></strong></p>
-                            <p>Date:  <sspan id="date">2025-11-25</sspan></p>
-                            <p>Receipt No: <sspan id="receipt">165155132</sspan></p>
-                            <p>Invoice No: <sspan id="invoice">3244334243</sspan></p>
-                            <p>Pump No:<sspan id="pump">17</sspan></p>
-                            <p>Vehicle No:<span id="vehicle">400050</span></p>
-                            <p>RRN : <sspan id="rrn">51515215412</sspan></p>
-                            <p>Attendant ID : <sspan id="attendant">51515215412</sspan></p>
-                            <p>Employee ID : <sspan id="employee">51515215412</sspan></p>
-                            <p>TID: <sspan id="tid">670-V3 17 e 3 SN P257233T20060</sspan></p>
+                  </div>
 
-
-
-                        </div>
-                    </div>
-
-
+                  <div class="fake-qr"></div>
+                  <p class="text-center">Claim Rewards QR</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
