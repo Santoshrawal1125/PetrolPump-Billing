@@ -66,6 +66,23 @@
   p {
     margin: 2px 0;
   }
+
+#invoice-details-body td {
+  padding: 4px 8px;
+}
+
+#invoice-details-body td:nth-child(1) {
+  text-align: left;
+  white-space: nowrap; /* Prevent content from wrapping to the next line */
+}
+
+#invoice-details-body td:nth-child(n+2) {
+  text-align: right;
+}
+
+#invoice-details-body tr {
+  border-bottom: 1px solid #ddd;
+}
 </style>
 
 
@@ -232,7 +249,7 @@
                         data-category="{{ item.category.id }}" 
                         data-brand="{{ item.brand }}">
                         <div class="card h-100">
-                            <span class="badge bg-danger quantity-badge">Qty: {{ item.quantity }}</span>
+<!--                            <span class="badge bg-danger quantity-badge">Qty: {{ item.quantity }}</span>-->
                             {% if item.image %}
                             <img src="{{ item.image.url }}" class="card-img-top product-image" alt="{{ item.name }}">
                             {% else %}
@@ -334,51 +351,100 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                  <div class="text-center">
-                    <img src="{{ organization.logo.url }}" alt="Organization Logo" height="100">
-                    <h4> TAX INVOICE </h4>
-                    <h7>TRN: 100069993200003</h7>
-                    <p>Address: {{ organization.location }}</p>
-                     ---------------------------------------
-                  </div>
+<div class="text-center">
+  <img src="{{ organization.logo.url }}" alt="Organization Logo" height="100">
+  <p> TAX INVOICE </p>
+  <h7 style="display: block; margin-bottom: 8px;">TRN: 100069993200003</h7>
+  <h7 style="display: block;">ADNOC Distribution</h7>
 
-                  <table class="table">
-                    <thead>
-                      <tr>
-                        <th>Item</th>
-                        <th>Qty</th>
-                        <th>Price</th>
-                        <th>Subtotal-AED</th>
+<p>
+  P O Box 4188, AbuDhabi UAE<br>
+  892:CAF, CARE CENTRE
+</p>
 
-                      </tr>
-                    </thead>
-                    <tbody id="invoice-details-body">
-                      <tr>
-                        <td>Gas Oil (1)</td>
-                        <td>2.63</td>
-                        <td>32.32</td>
-                        <td>85.00</td>
-                      </tr>
-                    </tbody>
-                  </table>
+  ---------------------------------------
+</div>
 
-                  <div class="row text-center">
-                    <div class="col-md-6 me-auto">
-                      <p>Tax Amount: ₹<sspan id="invoice-tax-amount">4.05</sspan></p>
-                      <p>Discount: ₹<span id="invoice-total-discount">0.00</span></p>
-                      <p><strong>Grand Total: ₹<span id="invoice-total">85.00</span></strong></p>
-                      <p>Date: <sspan id="date">2025-11-25</sspan></p>
-                      <p>Receipt No: <sspan id="receipt">163858</sspan></p>
-                      <p>Invoice No: <sspan id="invoice">2024041409270163598</sspan></p>
-                      <p>Pump No: <sspan id="pump">17</sspan></p>
-                      <p>Vehicle No: <span id="vehicle">4008</span></p>
-                      <p>RRN : <sspan id="rrn">510410163858</sspan></p>
-                      <p>Attendant ID : <sspan id="attendant">762004910000295735</sspan></p>
-                      <p>Employee ID : <sspan id="employee">191133</sspan></p>
-                      <p>TID: <sspan id="tid">670-V3.17 e 3 SN P257233T20060</sspan></p>
+
+<table style="border-collapse: collapse; width: 100%;">
+  <thead>
+    <tr>
+      <th style="border: none; padding: 4px 8px; font-weight: normal; text-align: left; width: 40%;">Item</th>
+      <th style="border: none; padding: 4px 8px; font-weight: normal; text-align: right; width: 20%;">Qty</th>
+      <th style="border: none; padding: 4px 8px; font-weight: normal; text-align: right; width: 20%;">Price</th>
+      <th style="white-space: nowrap; border: none; padding: 4px 8px; font-weight: normal; text-align: right; width: 20%;">Subtotal-AED</th>
+    </tr>
+  </thead>
+  <tbody id="invoice-details-body">
+
+  </tbody>
+</table>
+
+
+
+
+
+                    ---------------------------------------
+                    <div class="row text-center">
+                      <div class="col-md-12 me-auto">
+
+                        <!-- Section 1: Payment Info -->
+                    <div class="payment-info">
+                      <p style="display: flex; justify-content: space-between;">
+                        Total Amount <span id="invoice-tax-amount">4.05</span>
+                      </p>
+                      <p style="display: flex; justify-content: space-between;">
+                        Payment <span id="invoice-total-discount"></span>
+                      </p>
+                      <p style="display: flex; justify-content: space-between;">
+                        CASH PAYMENT <span id="invoice-total">85.00</span>
+                      </p>
                     </div>
-                  </div>
 
+                        ---------------------------------------
+                        <!-- Section 2: Rewards Info -->
+                        <div class="rewards-info">
+
+                          <p>You could have earned points!</p>
+                          <p>Sign up for ADNOC Rewards Now!</p>
+                          <div class="fake-qr"></div>
+                        </div>
+                        ---------------------------------------
+                        <div>
+                          <h7>Price Inclusive of VAT</h7>
+                          <p>VAT Summary</p>
+
+                        <div style="width: 100%;">
+                          <div id="vat-section" style="width: 100%;">
+                            <div style="display: flex; padding-bottom: 4px; font-weight: bold;">
+                              <div style="flex: 1;">VAT Code</div>
+                              <div style="flex: 1;">Amount</div>
+                              <div style="flex: 1;">VAT Rate</div>
+                              <div style="flex: 1;">VAT (AED)</div>
+                            </div>
+                          </div>
+                        </div>
+
+                        </div>
+                          ---------------------------------------
+                        <!-- Section 3: Receipt Details -->
+                        <div class="receipt-details" style="text-align: left;">
+                          <p style="margin: 0;">Date: <span id="date">2025-11-25</span></p>
+                          <p style="margin: 0;">Receipt No: <span id="receipt">163858</span></p>
+                          <p style="margin: 0;">Invoice No: <span id="invoice">2024041409270163598</span></p>
+                          <p style="margin: 0;">Pump No: <span id="pump">17</span></p>
+                          <p style="margin: 0;">Vehicle No: <span id="vehicle">4008</span></p>
+                          <p style="margin: 0;">RRN : <span id="rrn">510410163858</span></p>
+                          <p style="margin: 0;">Attendant ID : <span id="attendant">762004910000295735</span></p>
+                          <p style="margin: 0;">Employee ID : <span id="employee">191133</span></p>
+                          <p style="margin: 0;">TID: <span id="tid">670-V3.17 e 3 SN P257233T20060</span></p>
+                        </div>
+
+
+                      </div>
+                    </div>
+
+                    ---------------------------------------
                   <div class="fake-qr"></div>
                   <p class="text-center">Claim Rewards QR</p>
                 </div>
@@ -586,18 +652,71 @@
             // Add row to the modal table
             $('#invoice-details-body').append(`
                 <tr>
-                    <td>1</td>
+
                     <td>${itemName}</td>
-                    <td>₹${price.toFixed(2)}</td>
                     <td>${quantity}</td>
-                    <td>₹${subtotal.toFixed(2)}</td>
+                    <td>${price.toFixed(2)}</td>
+
+                    <td>${subtotal.toFixed(2)}</td>
                 </tr>
             `);
         });
 
+    // Clear previous VAT summary rows
+    $('#vat-section div:not(:first-child)').remove();
+
+    // Calculate total subtotal again
+    let totalSubtotal = 0;
+    $('#invoice-details-body tr').each(function () {
+        const subtotalText = $(this).find('td:last').text();
+        const subtotal = parseFloat(subtotalText);
+        if (!isNaN(subtotal)) {
+            totalSubtotal += subtotal;
+        }
+    });
+
+    // Calculate VAT
+    const vatRate = 0.05;
+    const amountWithoutVAT = (totalSubtotal * (1 - vatRate)).toFixed(2);
+    const vatAmount = (totalSubtotal * vatRate).toFixed(2);
+
+    // Add VAT row to #vat-section
+// Clear previous VAT section
+$('#vat-section').empty();
+
+// Add VAT table header (titles) dynamically
+// Clear previous VAT section
+$('#vat-section').empty();
+
+// Add VAT table header (titles) dynamically (clean and aligned)
+$('#vat-section').append(`
+  <div style="display: flex; padding: 4px 0; font-weight: bold;">
+    <div style="flex: 1;">VAT Code</div>
+    <div style="flex: 1;">Amount</div>
+    <div style="flex: 1;">VAT Rate</div>
+    <div style="flex: 1;">VAT (AED)</div>
+  </div>
+`);
+
+// Add the VAT value row
+$('#vat-section').append(`
+  <div style="display: flex; padding-top: 4px;">
+    <div style="flex: 1;">C</div>
+    <div style="flex: 1;">${amountWithoutVAT}</div>
+    <div style="flex: 1;">5%</div>
+    <div style="flex: 1;">${vatAmount}</div>
+  </div>
+`);
+
+
+
+
+
+
+
         // Update the modal with calculated totals
-        $('#invoice-tax-amount').text(totalTax.toFixed(2));
-        $('#invoice-total-discount').text(totalDiscount.toFixed(2));
+        $('#invoice-tax-amount').text(totalAmount.toFixed(2));
+
         $('#invoice-total').text(totalAmount.toFixed(2));
 
         // Show the modal

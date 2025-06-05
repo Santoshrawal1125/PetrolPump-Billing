@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from app.account.models import User
 from phonenumber_field.modelfields import PhoneNumberField
+from django.core.validators import MinValueValidator
 
 
 class OrganizationSetting(models.Model):
@@ -97,7 +98,11 @@ class Item(models.Model):
     name = models.CharField(max_length=255)
     brand = models.CharField(max_length=100, blank=True, null=True)
     category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True)
-    quantity = models.PositiveIntegerField()
+    quantity = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(0.01)]
+    )
     description = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to='item_images/', blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -148,7 +153,11 @@ class PurchaseItem(models.Model):
     purchase = models.ForeignKey('Purchase', on_delete=models.CASCADE, related_name='items')
     item = models.ForeignKey('Item', on_delete=models.SET_NULL, null=True)
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField()
+    quantity = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(0.01)]
+    )
     price_per_unit = models.DecimalField(max_digits=10, decimal_places=2)
     tax_percentage = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     tax_amount = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
@@ -217,7 +226,11 @@ class SaleItem(models.Model):
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     item_name = models.CharField(max_length=255, default="Unknown Item")
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    quantity = models.PositiveIntegerField(default=1)
+    quantity = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(0.01)]
+    )
     discount = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
     tax = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)  # Add a default value
