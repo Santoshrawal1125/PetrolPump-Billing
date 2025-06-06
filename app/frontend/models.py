@@ -22,24 +22,34 @@ class OrganizationSetting(models.Model):
         return self.company_name
 
 
+from django.core.exceptions import ValidationError
+
+
 class Invoice(models.Model):
-    invoice_number = models.CharField(max_length=30, unique=True, editable=False, blank=True)
+    invoice_suffix = models.CharField(max_length=10, blank=True, null=True)
+    invoice_number = models.CharField(max_length=30, unique=False, editable=True)
     receipt_number = models.CharField(max_length=20, blank=True, null=True)
     pump_number = models.IntegerField(blank=True, null=True)
     vehicle_no = models.CharField(max_length=20, blank=True, null=True)
-    rrn = models.IntegerField(blank=True, null=True)
-    employee_id = models.ForeignKey(User, related_name='empolyee_id', on_delete=models.CASCADE, blank=True, null=True)
+    rrn = models.CharField(max_length=30, blank=True, null=True)
+    employee_id = models.ForeignKey(User, related_name='employee_id', on_delete=models.CASCADE, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
-        if not self.invoice_number:
-            last_invoice = Invoice.objects.order_by('-id').first()
-            if last_invoice:
-                last_number = int(last_invoice.invoice_number.replace("SL", ""))
-                new_number = f"SL{last_number + 1:04d}"
-            else:
-                new_number = "SL0001"
-            self.invoice_number = new_number
+        invoice_prefix = "20250"
+
+        # Only proceed if invoice_suffix is provided (i.e., POST form submission)
+        if self.invoice_suffix:
+            self.invoice_number = f"{invoice_prefix}{self.invoice_suffix}"
+
+            # Check uniqueness only if invoice_number is set
+            if Invoice.objects.exclude(pk=self.pk).filter(invoice_number=self.invoice_number).exists():
+                raise ValidationError(f"Invoice number '{self.invoice_number}' already exists.")
+
+        # Auto-generate RRN if receipt_number is given
+        if self.receipt_number:
+            self.rrn = f"510410{self.receipt_number}"
+
         super().save(*args, **kwargs)
 
 

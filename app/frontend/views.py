@@ -342,12 +342,16 @@ def pos_page(request):
     categories = Category.objects.all()
     brands = Item.objects.values_list('brand', flat=True).distinct()
     items = Item.objects.all()
+
+    # Create invoice only if none exists for this session or similar logic
     invoice = Invoice.objects.create()
+
     context = {
         'categories': categories,
         'brands': brands,
         'items': items,
-        'invoice': invoice
+        'invoice': invoice,
+        'pumps': range(1, 21),  # Add pump numbers 1–20 for dropdown
     }
     return render(request, 'pos/pos_system.html', context)
 

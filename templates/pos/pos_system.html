@@ -55,7 +55,7 @@
     margin: 10px auto;
     width: 80px;
     height: 80px;
-    background: url('https://api.qrserver.com/v1/create-qr-code/?data=Placeholder&size=80x80') no-repeat center center;
+    background: url('/static/assets/images/qr_code.jpg') no-repeat center center;
     background-size: contain;
   }
 
@@ -358,8 +358,8 @@
   <h7 style="display: block;">ADNOC Distribution</h7>
 
 <p>
-  P O Box 4188, AbuDhabi UAE<br>
-  892:CAF, CARE CENTRE
+  P.O Box 4188, AbuDhabi UAE<br>
+  892:CAR CARE CENTRE
 </p>
 
   ---------------------------------------
@@ -428,17 +428,50 @@
                         </div>
                           ---------------------------------------
                         <!-- Section 3: Receipt Details -->
-                        <div class="receipt-details" style="text-align: left;">
-                          <p style="margin: 0;">Date: <span id="date">2025-11-25</span></p>
-                          <p style="margin: 0;">Receipt No: <span id="receipt">163858</span></p>
-                          <p style="margin: 0;">Invoice No: <span id="invoice">2024041409270163598</span></p>
-                          <p style="margin: 0;">Pump No: <span id="pump">17</span></p>
-                          <p style="margin: 0;">Vehicle No: <span id="vehicle">4008</span></p>
-                          <p style="margin: 0;">RRN : <span id="rrn">510410163858</span></p>
-                          <p style="margin: 0;">Attendant ID : <span id="attendant">762004910000295735</span></p>
-                          <p style="margin: 0;">Employee ID : <span id="employee">191133</span></p>
-                          <p style="margin: 0;">TID: <span id="tid">670-V3.17 e 3 SN P257233T20060</span></p>
-                        </div>
+                            <form method="post">
+                              {% csrf_token %}
+
+                              <div class="receipt-details" style="text-align: left;">
+                                <p>Date: <span id="date">{{ invoice.created_at|date:"d-m-Y H:i:s" }}</span></p>
+
+<p>Receipt No:
+  <input type="text" name="receipt_number" id="receipt_number" value="{{ invoice.receipt_number }}" />
+</p>
+
+                                <p>Invoice No:
+                                  <span>20250</span>
+                                  <input type="text" name="invoice_suffix" value="{{ invoice.invoice_suffix }}" required />
+                                </p>
+
+                            <p>Pump No:
+                                <input type="text" name="pump_number" value="{{ invoice.pump_number }}" />
+                            </p>
+
+
+                                <p>Vehicle No:
+                                  <input type="text" name="vehicle_no" value="{{ invoice.vehicle_no }}" />
+                                </p>
+
+
+
+<p>RRN:
+  <span id="rrn-preview">
+    {% if invoice.receipt_number %}510410{{ invoice.receipt_number }}{% else %}510410{% endif %}
+  </span>
+</p>
+                                <p>Attendant ID:
+                                  <span id="attendant">762004910000295735</span>
+                                </p>
+
+                                <p>Employee ID:
+                                  <span id="employee">762004910000295735</span>
+                                </p>
+
+                                <p>TID:
+                                  <span id="tid">670-V3.17 e 3 SN P257233T20060</span>
+                                </p>
+                              </div>
+                            </form>
 
 
                       </div>
@@ -447,6 +480,11 @@
                     ---------------------------------------
                   <div class="fake-qr"></div>
                   <p class="text-center">Claim Rewards QR</p>
+                    <br>
+                    <p class="text-center">Thank You</p>
+                    <p class="text-center">Contact Us 800300</p>
+                  <p class="text-center">www.adnocdistribution.ae</p>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -731,14 +769,16 @@ $('#vat-section').append(`
         });
 
         // Save and Print Invoice
-        $('#save-print-invoice-btn').click(function() {
-            // Here you can add the logic to save the invoice to the database
-            alert("Invoice saved and printed!");
-            $('#payAllModal').modal('hide');
-            
-            // Print the invoice
-            printInvoice();
-        });
+$('#save-print-invoice-btn').click(function () {
+    // Optionally: save invoice logic here
+    $('#payAllModal').modal('hide');
+
+    // Print after modal is hidden (to prevent overlap)
+    setTimeout(() => {
+        printInvoice();
+    }, 500);
+});
+
 
         // Function to print the invoice
         function printInvoice() {
@@ -844,7 +884,7 @@ $('#vat-section').append(`
             const customerInput = document.getElementById("customer-input");
             const customerList = document.getElementById("customer-list");
             const customerForm = document.getElementById("customerForm");
-        
+
             // Search customer
             customerInput.addEventListener("input", function() {
                 let query = this.value.trim();
@@ -868,12 +908,12 @@ $('#vat-section').append(`
                     customerList.innerHTML = "";
                 }
             });
-        
+
             // Submit new customer form
             customerForm.addEventListener("submit", function(event) {
                 event.preventDefault();
                 let formData = new FormData(this);
-                
+
                 fetch("{% url 'frontend:create_customer' %}", {
                     method: "POST",
                     body: formData,
@@ -896,160 +936,196 @@ $('#vat-section').append(`
             });
         });
 
-    // Save Invoice
-    function saveInvoice(shouldPrint = false) {
-        const customerName = $('#customer-name').val();
-        const customerAddress = $('#customer-address').val();
-        const customerPhone = $('#customer-phone').val();
+document.addEventListener('DOMContentLoaded', function () {
+    const invoiceSuffixInput = document.getElementById('invoice_suffix');
+    const invoiceNumberSpan = document.getElementById('invoice-number-preview');
+    const receiptNumberInput = document.getElementById('receipt_number');
+    const rrnPreview = document.getElementById('rrn-preview');
 
-        const invoiceItems = [];
-        $('#invoice-items tr').each(function() {
-            const itemName = $(this).find('td').eq(0).text();
-            const price = parseFloat($(this).find('.item-price').text());
-            const quantity = parseInt($(this).find('.quantity-input').val());
-            const discount = parseFloat($(this).find('.discount-input').val()) || 0;
-            const tax = parseFloat($(this).find('.tax-input').val()) || 0;
-            const subtotal = (price * quantity) - discount + (price * quantity * tax / 100);
-
-            invoiceItems.push({
-                itemId: $(this).data('id'), // Pass item ID
-                itemName: itemName,
-                price: price,
-                quantity: quantity,
-                discount: discount,
-                tax: tax,
-                subtotal: subtotal
-            });
+    // Update invoice number when suffix changes
+    if (invoiceSuffixInput && invoiceNumberSpan) {
+        invoiceSuffixInput.addEventListener('input', function () {
+            const suffix = invoiceSuffixInput.value.trim();
+            invoiceNumberSpan.textContent = suffix ? `20250${suffix}` : '';
         });
+    }
 
-        const totalAmount = parseFloat($('#grand-total').text());
+    // ✅ Update RRN when receipt number changes
+    if (receiptNumberInput && rrnPreview) {
+        receiptNumberInput.addEventListener('input', function () {
+            const receipt = receiptNumberInput.value.trim();
+            rrnPreview.textContent = receipt ? `510410${receipt}` : '510410';
+        });
+    }
+});
 
-        const saleData = {
-            customerName: customerName,
-            customerAddress: customerAddress,
-            customerPhone: customerPhone,
-            items: invoiceItems,
-            totalAmount: totalAmount
-        };
+// Save Invoice
+function saveInvoice(shouldPrint = false) {
+    // Grab values from modal form fields
+    const receiptNumber = document.querySelector('input[name="receipt_number"]').value;
+    const invoiceSuffix = document.querySelector('input[name="invoice_suffix"]').value;
+    const pumpNumber = document.querySelector('select[name="pump_number"]').value;
+    const vehicleNo = document.querySelector('input[name="vehicle_no"]').value;
 
-        // Send data to the backend
-        fetch("{% url 'frontend:save_sale' %}", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": "{{ csrf_token }}"
-            },
-            body: JSON.stringify(saleData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert("Sale saved successfully!");
-                if (shouldPrint) {
-                    printInvoice(); // Print after saving
-                }
-                window.location.href = "{% url 'frontend:sale_list' %}"; // Redirect to sale list page
-            } else {
-                alert("Error saving sale!");
+    // ✅ Correct way to get invoice number from span
+    const invoiceNumber = document.getElementById('invoice-number-preview').textContent.trim();
+
+    const rrnText = document.querySelector('#rrn-preview').innerText.trim();
+    const attendantId = document.querySelector('#attendant').innerText.trim();
+    const employeeId = document.querySelector('#employee').innerText.trim();
+    const tid = document.querySelector('#tid').innerText.trim();
+
+    // Build data object
+    const invoiceData = {
+        receipt_number: receiptNumber,
+        invoice_suffix: invoiceSuffix,
+        pump_number: pumpNumber,
+        vehicle_no: vehicleNo,
+        invoice_number: invoiceNumber,
+        rrn: rrnText,
+        attendant_id: attendantId,
+        employee_id: employeeId,
+        tid: tid
+    };
+
+    fetch("{% url 'frontend:save_sale' %}", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": "{{ csrf_token }}"
+        },
+        body: JSON.stringify(invoiceData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Invoice saved successfully!");
+            if (shouldPrint) {
+                printInvoice();
+            }
+        } else {
+            alert("Error saving invoice!");
+        }
+    })
+    .catch(error => console.error("Error:", error));
+}
+
+// Button handlers
+document.getElementById('save-invoice-btn').addEventListener('click', function() {
+    saveInvoice(false);
+});
+
+document.getElementById('save-print-invoice-btn').addEventListener('click', function() {
+    saveInvoice(true);
+});
+
+function printInvoice() {
+    const modalBody = document.querySelector('#payAllModal .modal-body');
+
+    // Create a new print window
+    const printWindow = window.open('', '_blank');
+
+    // Try to copy styles from the main document (some may be blocked)
+    const dynamicStyles = Array.from(document.styleSheets)
+        .map(styleSheet => {
+            try {
+                return Array.from(styleSheet.cssRules)
+                    .map(rule => rule.cssText)
+                    .join('');
+            } catch (e) {
+                return ''; // Skip inaccessible stylesheet
             }
         })
-        .catch(error => console.error("Error:", error));
-    }
+        .join('\n');
 
-    // Save Invoice Button
-    $('#save-invoice-btn').click(function() {
-        saveInvoice(false); // Save without printing
-    });
-
-    // Save & Print Invoice Button
-    $('#save-print-invoice-btn').click(function() {
-        saveInvoice(true); // Save and print
-    });
-
-    function printInvoice() {
-        // Clone the modal content to avoid modifying the original
-        const printContents = document.getElementById('payAllModal').cloneNode(true);
-
-        // Remove unnecessary elements
-        const elementsToRemove = printContents.querySelectorAll('.modal-footer, .btn-close, .modal-header');
-        elementsToRemove.forEach(el => el.remove());
-
-        // Ensure customer details are visible
-        const customerDetails = printContents.querySelector('.customer-details');
-        if (customerDetails) {
-            customerDetails.style.display = 'block';
+    // Manual custom CSS styles for consistent print layout
+    const customStyles = `
+        body {
+            width: 55mm;
+            font-size: 11px;
+            font-family: monospace;
+        }
+        .modal-body {
+            padding: 0;
+            margin: 0;
+            width: 100%;
+            font-family: monospace;
+            max-width: 300px;
+            font-size: 12px;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table th, .table td {
+            padding: 2px 4px;
+            font-size: 11px;
+            text-align: left;
+        }
+        hr {
+            border: none;
+            border-top: 1px dashed #000;
+        }
+        img {
+            max-height: 50px;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .fake-qr {
+            display: block;
+            margin: 10px auto;
+            width: 80px;
+            height: 80px;
+            background: url('/static/assets/images/qr_code.jpg') no-repeat center center;
+            background-size: contain;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
         }
 
-        // Populate customer details in the print view
-        const customerName = $('#customer-name').val();
-        const customerAddress = $('#customer-address').val();
-        const customerPhone = $('#customer-phone').val();
-
-        if (customerName) {
-            printContents.querySelector('#customer-name').value = customerName;
+        h4, h5, h7, p {
+            margin: 2px 0;
         }
-        if (customerAddress) {
-            printContents.querySelector('#customer-address').value = customerAddress;
+        #invoice-details-body td {
+            padding: 4px 8px;
         }
-        if (customerPhone) {
-            printContents.querySelector('#customer-phone').value = customerPhone;
+        #invoice-details-body td:nth-child(1) {
+            text-align: left;
+            white-space: nowrap;
         }
-
-        // Center align the company details and invoice header
-        const companyDetails = printContents.querySelector('.text-center');
-        if (companyDetails) {
-            companyDetails.style.textAlign = 'center';
+        #invoice-details-body td:nth-child(n+2) {
+            text-align: right;
         }
+        #invoice-details-body tr {
+            border-bottom: 1px solid #ddd;
+        }
+    `;
 
-        // Create a new window for printing
-        const printWindow = window.open('', '_blank');
-        printWindow.document.open();
-        printWindow.document.write(`
-            <html>
-                <head>
-                
-                    <style>
-                        /* Hide unnecessary elements when printing */
-                        .modal-footer, .btn-close, .modal-header {
-                            display: none !important;
-                        }
-                        /* Ensure customer details are visible */
-                        .customer-details {
-                            display: block !important;
-                        }
-                        /* Center align text */
-                        .text-center {
-                            text-align: center !important;
-                        }
-                        /* Add any additional print styles here */
-                        body {
-                            font-family: Arial, sans-serif;
-                        }
-                        table {
-                            width: 100%;
-                            border-collapse: collapse;
-                        }
-                        th, td {
-                            border: 1px solid #000;
-                            padding: 8px;
-                            text-align: left;
-                        }
-                        th {
-                            background-color: #f2f2f2;
-                        }
-                    </style>
-                </head>
-                <body>
-                    ${printContents.innerHTML}
-                </body>
-            </html>
-        `);
-        printWindow.document.close();
+    // Inject combined styles and modal content into the print window
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>Invoice</title>
+            <style>
+                ${dynamicStyles}
+                ${customStyles}
+            </style>
+        </head>
+        <body onload="window.print(); window.close();">
+            <div class="modal-body">
+                ${modalBody.innerHTML}
+            </div>
+        </body>
+        </html>
+    `);
 
-        // Print the invoice
-        printWindow.print();
-        printWindow.close();
-    }
+    printWindow.document.close();
+
+
+}
+
+
+
 
 
     </script>
